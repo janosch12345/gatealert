@@ -1,0 +1,131 @@
+{
+  "extensionName": {
+    "message": "GateAlert",
+    "description": "Name of the extension."
+  },
+
+  "extensionDescription": {
+    "message": "Eine Browsererweiterung speziell für Bibliotheken mit RFID-Diebstahlsicherungsanlagen. Zeigt aktuelle Alarme und bietet die Möglichkeit das Gate laut/stumm zu schalten.",
+    "description": "Description of the extension."
+  },
+
+  "notificationTitle": {
+    "message": "Alarm",
+    "description": "Title of the system notification."
+  },
+
+  "notificationContent": {
+    "message": "$TITLE$  \nMediennummer: $MEDIANUMBER$\nSignatur: $SIGNATURE$\n Status: $AVAILABLE$",
+    "description": "Tells the user which item triggered an alarm.",
+    "placeholders": {
+      "title" : {
+        "content" : "$1",
+        "example" : "Booktitle like 1984"
+      },
+      "medianumber" : {
+        "content" : "$2",
+        "example" : "912345678"
+      },
+      "signature" : {
+        "content" : "$3",
+        "example" : "0ABC123"
+      },
+      "available" : {
+        "content" : "$4" ,
+        "example" : "Available"
+      }
+    }
+  },
+  
+  "menuAlarmContent": {
+    "message": "<div class='alarm'><span class='date'>$DATE$</span><br>$TITLE$<br>Mediennummer: $MEDIANUMBER$<br>Signatur: $SIGNATURE$<br>Status: $AVAILABLE$",
+    "description": "Tells the user which item triggered an alarm.",
+    "placeholders": {
+      "date" : {
+        "content" : "$1",
+        "example" : "1984"
+      },
+      "title" : {
+        "content" : "$2",
+        "example" : "Booktitle 1984"
+      },
+      "medianumber" : {
+        "content" : "$3",
+        "example" : "912345678"
+      },
+      "signature" : {
+        "content" : "$4",
+        "example" : "0ABC123"
+      },
+      "available" : {
+        "content" : "$5" ,
+        "example" : ""
+      }
+    }
+  },
+   
+  "available": {
+    "message": "Nicht entliehen",
+    "description": "Notification message if item is available."
+  },
+  
+  "borrowed": {
+    "message": "Entliehen",
+    "description": "Notification message if item is borrowed."
+  },
+   
+  "noAlarms": {
+    "message": "Keine Alarme in dieser Sitzung",
+    "description": "Message in alarm list displayed if no alarms found."
+  },
+   
+  "alarmOn": {
+    "message": "Alarm is AN",
+    "description": "Title of the toolbar button if gate sound is on."
+  },
+  
+  "alarmOff": {
+    "message": "Alarm ist AUS",
+    "description": "Title of the toolbar button if gate sound is off."
+  },
+    
+  "unknown": {
+    "message": "Unbekannt",
+    "description": "Title of toolbar button if there is no connection to the Websocket."
+  },
+  
+  "connectButton": {
+    "message": "Verbinden",
+    "description": "Title of the reconnect button in menu."
+  },
+  
+  "emptyListButton": {
+    "message": "Liste leeren",
+    "description": "Title of the reconnect button in menu."
+  },
+  
+  "externalButton": {
+    "message": "Externe Übersicht öffnen",
+    "description": "Title of the external button in menu."
+  },
+  
+  "settingsButton": {
+    "message": "Einstellungen",
+    "description": "Title of the settins button in menu."
+  },
+  
+  "buttonTurnOnSound": {
+    "message": "Laut schalten",
+    "description": "Title of the sound button in menu."
+  },
+  
+  "buttonTurnOffSound": {
+    "message": "Stumm schalten",
+    "description": "Title of the sound button in menu."
+  },
+  
+  "offline": {
+    "message": "Server ist nicht erreichbar.",
+    "description": "Title of toolbar button when application is offline."
+  }
+}

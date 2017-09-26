@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      .flex-outer,
+      .flex-inner {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .flex-outer {
+        /*max-width: 800px;
+        margin: 0 auto;*/
+      }
+
+      .flex-outer li,
+      .flex-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .flex-inner {
+        padding: 0 8px;
+        justify-content: space-between;  
+      }
+
+      .flex-outer > li:not(:last-child) {
+        margin-bottom: 20px;
+      }
+
+      .flex-outer li label,
+      .flex-outer li p {
+        padding: 8px;
+        /*font-weight: 300;
+        letter-spacing: .09em;*/
+        
+      }
+
+      .flex-outer > li > label,
+      .flex-outer li p {
+        flex: 1 0 120px;
+        max-width: 220px;
+      }
+
+      .flex-outer > li > label + *,
+      .flex-inner {
+        flex: 1 0 220px;
+      }
+
+      .flex-outer li p {
+        margin: 0;
+      }
+
+      .flex-outer li input:not([type='checkbox']),
+      .flex-outer li textarea {
+        padding: 15px;
+        /*border: none;*/
+        max-width: 300px;
+      }
+      
+      .flex-outer li input[type='checkbox'] {
+        max-width: 0px;
+      }
+
+      .flex-outer li button {
+        /*margin-left: auto;*/
+        padding: 8px 16px;
+        border: none;
+        background: #333;
+        color: #f2f2f2;
+        /*letter-spacing: .09em;*/
+        border-radius: 2px;
+        cursor: pointer
+      }
+
+      .flex-inner li {
+        width: 100px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form>
+      <ul class="flex-outer">
+        <li>
+          <label for="first-name">Server address</label>
+          <input type="text" id="server-address" placeholder="Websocket Server Address">
+        </li>
+        <li>
+          <label for="last-name">Server port</label>
+          <input type="text" id="server-port" placeholder="Websocket Server Port">
+        </li>
+        <li>
+          <label for="last-name">Alarm List Url</label>
+          <input type="text" id="alarm-list-url" placeholder="https://example.org">
+        </li>
+        <li>
+          <label for="last-name">Show System Notifications</label>
+          <input type="checkbox" id="notifications-enabled">
+        </li><li>
+          <label for="last-name">Show Debug Messages</label>
+          <input type="checkbox" id="debug-enabled">
+        </li>
+        <li>
+          <button type="submit">Speichern</button>
+        </li>
+      </ul>
+
+    </form>
+    <script src="options.js"></script>
+  </body>
+
+</html>
