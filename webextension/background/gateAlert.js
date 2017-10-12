@@ -3,30 +3,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 "use strict";
+
 var hello = { "type": "status", "other": "client says hello" };
 var alarms = [];
-var gate = {
-  "connection" : false,
-  "sound" : false
-};
+var gate = { "connection" : false, "sound" : false };
 var _websocket = null;
-var options;
+var options = { "debug" : false };
 
 function restoreOptions() {
-  var gettingItem = browser.storage.sync.get('gateAlertOptions');
+  var gettingItem = browser.storage.local.get('gateAlertOptions');
   gettingItem.then((res) => {
-    options = res.gateAlertOptions;
-    wsConnect();
+    
+    if (res.gateAlertOptions){
+      options = res.gateAlertOptions;
+      wsConnect(); 
+    } else {
+      // there were no options found in storage
+      // warn user with browser action badge
+      browser.browserAction.setBadgeBackgroundColor({color: "red"});
+      browser.browserAction.setBadgeText({text: "init"});
+      browser.browserAction.setTitle({title: browser.i18n.getMessage("offline")});
+    }
   });
 }
 
+/**
+ * notifies menu by sending a message including
+ *  alarmlist
+ *  options 
+ *  gate status
+ * @returns {undefined}
+ */
 function notify(){
-  //modify the browser action badge
-  if (!gate.connection){ //offline
+  // modifies browser action badge
+  // offline
+  if (!gate.connection){ 
     browser.browserAction.setBadgeBackgroundColor({color: "red"});
     browser.browserAction.setBadgeText({text: "offline"});
     browser.browserAction.setTitle({title: browser.i18n.getMessage("offline")});
   }
+  // online 
   else if (alarms.length > 0){
     //adding a badge to the status icon
     browser.browserAction.setBadgeBackgroundColor({color: "red"});
@@ -35,12 +51,12 @@ function notify(){
     browser.browserAction.setBadgeBackgroundColor({color: "red"});
     browser.browserAction.setBadgeText({text: ""});
   }
-  //tell menu
-  browser.runtime.sendMessage({"type": "status", "alarms" : alarms, "status" : gate, options: options}).then().catch((err)=>{log(err,"Notifyinf menu/popup: runtime.sendMessage  maybe no popup visible")}); 
+  // tell menu
+  browser.runtime.sendMessage({"type": "status", "alarms" : alarms, "status" : gate}).then().catch((err)=>{log(err,"Notifying menu/popup: runtime.sendMessage  maybe no popup visible")}); 
 }
 
 /**
- * function that connects the websocket or on failure 
+ * initializes and handles websocket  
  * @returns {undefined}
  */
 function wsConnect() {
@@ -95,6 +111,7 @@ function wsConnect() {
       gate.connection = false;
       notify();
       _websocket = null;
+      setTimeout(wsConnect,15000);
     };
 
     _websocket.onerror = function(evt) {
@@ -134,14 +151,12 @@ function onGateStatus(status){
  * @returns {undefined}
  */
 function onAlarm(alarm){
-  //old server response: {"msgType":"alarm","medianumber":"101892808","signature":"Unbekannt","title":"Unbekannt","available":"true","date":"2017-09-19T12:01:28.887Z"}
-  //add a date to the alarm
+  //add a date to alarm and cut off the alarms list to only 3 alarms
   alarm.date = new Date();
-  //and save it locally limiting to 3 alarms
   alarms.push(alarm);
   alarms = alarms.slice(-3);
   
-  //display native system notification if enabled
+  //display native system notification if enabled in options
   if (options.notifications){
     var title = browser.i18n.getMessage("notificationTitle");
     var content = browser.i18n.getMessage("notificationContent", [ alarm.title, alarm.medianumber, alarm.signature, browser.i18n.getMessage(alarm.available === "true" ? 'available' : 'borrowed') ]);
@@ -158,21 +173,20 @@ function onAlarm(alarm){
  * click on notification /menu->external opens the overview website in a new tab
  * @returns {undefined}
  */
-function openExternalLink() {
+function openExternal() {
   var creating = browser.tabs.create({
     url: options.listUrl
   });
   creating.then((evt)=>{ log(evt,"onNotificationClick clicked") },(error)=>{ log(error,"onNotificationClick error")});
-  //browser.notifications.onClosed.removeListener(onNotificationClick)
-  //
-  //browser.notifications.onClosed.removeListener(onNotificationClick);
+  
 }
 
 
 /**
  * Register message listener f.e. popup.js will fetch alarms here
  */
-browser.runtime.onMessage.addListener(msg => {
+browser.runtime.onMessage.addListener((msg) => {
+  
   log(msg,"received message:");
   
   //popup/menu opens requests status and alarms
@@ -188,9 +202,9 @@ browser.runtime.onMessage.addListener(msg => {
   //popup triggers sound
   if (msg.type === "sound"){
     if (gate.sound === false)
-      _websocket.send(JSON.stringify({"status" : "turnOn"}));
+      _websocket.send(JSON.stringify({"type":"status", "status" : "turnOn"}));
     if (gate.sound === true)
-      _websocket.send(JSON.stringify({"status" : "turnOff"}));
+      _websocket.send(JSON.stringify({"type":"status","status" : "turnOff"}));
   }
   
   //empty the list
@@ -201,7 +215,12 @@ browser.runtime.onMessage.addListener(msg => {
   
   //open external application
   if (msg.type === "openExternal"){
-    openExternalLink();
+    openExternal();
+  } 
+  
+  //logging from menu
+  if (msg.type === "log"){
+    log(msg.log, msg.intro);
   } 
   
   //options have changed by options.js
@@ -224,6 +243,7 @@ browser.runtime.onMessage.addListener(msg => {
  * @returns {undefined}
  */
 function log(message,intro) {
+  
   if (options.debug){
     if (intro)
       console.log(intro + " -->");
@@ -232,7 +252,10 @@ function log(message,intro) {
 }
 
 
-/////////////////// start
+///////////////
+// start
+///////////////
 document.addEventListener('DOMContentLoaded', restoreOptions);
-browser.notifications.onClicked.addListener(openExternalLink);
-//browser.browserAction.setTitle({title: browser.i18n.getMessage("init")});
+browser.notifications.onClicked.addListener(openExternal);
+options = { "debug" : false };
+

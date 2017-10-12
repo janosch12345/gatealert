@@ -1,28 +1,9 @@
-var options;
-var status; //gate status {connection: true/false, sound: true/false}
+//var status; //gate status {connection: true/false, sound: true/false}
 /**
  * click listener for the menu items
  * @type type
  */
 document.addEventListener("click", (e) => {
-  /*if (e.target.classList.contains("beast")) {
-    
-    var chosenBeast = e.target.textContent;
-    var chosenBeastURL = beastNameToURL(chosenBeast);
-
-    browser.tabs.executeScript(null, { 
-      file: "/content_scripts/beastify.js" 
-    });
-
-    var gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-    gettingActiveTab.then((tabs) => {
-      browser.tabs.sendMessage(tabs[0].id, {beastURL: chosenBeastURL});
-    });
-  }
-  else if (e.target.classList.contains("clear")) {
-    browser.tabs.reload();
-    window.close();
-  }*/
   switch (e.target.id){
     case "gatealert-menu-state": 
       //reconnect
@@ -36,31 +17,39 @@ document.addEventListener("click", (e) => {
       break;
     case "gatealert-menu-external": 
       browser.runtime.sendMessage({"type": "openExternal"});
+      window.close();
       break;
     case "gatealert-menu-settings": 
       browser.runtime.openOptionsPage();
+      window.close();
       break;
     default: break;
   }
 });
 
-function onMessage(request, sender, sendResponse) {
-  
+/**
+ * 
+ * @param {type} request
+ * @param {type} sender
+ * @param {type} sendResponse
+ * @returns {undefined}
+ */
+function onMessage(request) {
+                  
   if (request.type === "status"){
     //displaying alarms
+    //empty the list
+    while (alarmList.firstChild) {
+        alarmList.removeChild(alarmList.firstChild);
+    }
     if (request.alarms.length === 0)
-      document.querySelector('#gatealert-alarms').innerHTML = browser.i18n.getMessage("noAlarms");
+      alarmList.insertAdjacentHTML('beforeend',browser.i18n.getMessage("noAlarms"));
     else {
-      document.querySelector('#gatealert-alarms').innerHTML = "";
+      
       for (let i = request.alarms.length -1; i >= 0; i--){
         let alarm = request.alarms[i];
-        /*let content = '<div class="alarm"><span class="date">'+formattedDate(alarm.date) + '</span><br>' +
-            browser.i18n.getMessage("title") + " " + alarm.title + "<br>" +
-            browser.i18n.getMessage("medianumber") + " " + alarm.medianumber + "<br>" +
-            browser.i18n.getMessage("signature") + " " + alarm.signature + "<br>" +
-            browser.i18n.getMessage(alarm.available === "true" ? 'available' : 'borrowed') + "</div>";*/
         let content = browser.i18n.getMessage("menuAlarmContent",[formattedDate(alarm.date),alarm.title,alarm.medianumber,alarm.signature,browser.i18n.getMessage(alarm.available === "true" ? 'available' : 'borrowed')])
-        document.querySelector('#gatealert-alarms').innerHTML += content;
+        alarmList.insertAdjacentHTML('beforeend', content);
       }
     }
     
@@ -69,12 +58,12 @@ function onMessage(request, sender, sendResponse) {
       //gate is connected
       //hide the connect button
       document.getElementById("gatealert-menu-state").classList.add('hide');
-      //enable soundbutton
+      //show soundbutton
       document.getElementById("gatealert-menu-sound").classList.remove('hide');
     } else {
-      //gate is not connected
+      //gate is not connected, show connect button
       document.getElementById("gatealert-menu-state").classList.remove('hide');
-      //disable sound button
+      //hide sound button
       document.getElementById("gatealert-menu-sound").classList.add('hide');
     }
     
@@ -88,15 +77,9 @@ function onMessage(request, sender, sendResponse) {
       document.getElementById('gatealert-menu-sound').title = browser.i18n.getMessage("buttonTurnOnSound");
     }
     
-    status = request.status;
+    //status = request.status;
     
-    //setting options
-    options = request.options;
-    
-  }  
-  //console.log(`received a message: ${request}`);
-  log(request,"Menu received a message ")
-  //sendResponse({"type": "popup", "data": "dataComplete"});
+  }    
 }
 
 /**
@@ -105,27 +88,15 @@ function onMessage(request, sender, sendResponse) {
  * @returns {String}
  */
 function formattedDate(date){
-  //date.getDate() + "." + (date.getMonth() + 1 )+ ". " 
   return ("0" + date.getHours()).slice(-2) + ":" +  ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
 }
 
-/**
- * logging helper
- * @param {type} message
- * @param {type} intro
- * @returns {undefined}
- */
-function log(message,intro) {
-  if (options.debug){
-    if (intro)
-      console.log(intro + " -->");
-    console.log(message);
-  }
-}
+//////
+// start
+//////
+//on opening the menu fetch status and alarms from background script
+var alarmList = document.getElementById('gatealert-alarms');
 
-
-////// start
-//fetch status and alarms from background script by sending a message
 browser.runtime.sendMessage({"type": "fetchStatus"});
 
 //listener to background/options script messages
