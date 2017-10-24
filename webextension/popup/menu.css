@@ -39,40 +39,58 @@ body {
   width: 100%;
 }
 
+.row{
+  display:block;
+  width: 100%;
+}
+
+.gate {
+  display: flex;
+  flex-direction: row;
+  background-color: #fafafa
+}
+
+.gate button {
+  background-color: #fafafa
+}
+
 .gatealert-controls {
   display: inline-flex;
   flex-direction: row;
 }
 
-.gatealert-controls button{
-  border: 1px solid transparent;
-  background-color: #f1f2f3;
-  padding:1px;
-  /*float: left;*/
+.gatealert-controls button, .gate button{
+  border: 0px solid transparent;
   line-height: 40px;
   flex-basis: 25%;
+  flex-grow: 1;
+}
+
+.gatealert-gate-id {
+  border: 0px solid transparent;
+  padding-left:10px;
+  line-height: 40px;
+  flex-basis: 75%;
   flex-grow: 1;
   white-space: nowrap;
   font-size: 1.1em;
 }
 
-.gatealert-controls button:hover {
-  border: 1px solid transparent;
+.gatealert-controls button:hover, .gate button:hover {
+  border: 0px solid transparent;
   cursor: pointer;
   background-color: #ddd;
 }
 
-.gatealert-controls button:active {
+.gatealert-controls button:active, .gate button:active {
   outline: none;
   background-color: #ccc;
-
 }
 
-.gatealert-controls button > img {
+.gatealert-controls button > img, .gate button > img {
   margin:0 3px;
   width:16px;
   height: 0.9em;
-
 }
 
 .hide{

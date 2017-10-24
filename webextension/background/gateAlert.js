@@ -1,19 +1,30 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 "use strict";
 
-var hello = { "type": "status", "other": "client says hello" };
-var alarms = [];
-var gate = { "connection" : false, "sound" : false };
-var _websocket = null;
-var options = { "debug" : false };
+var hello = { "type": "init", "other": "hello" }; // standard response on connection to server, will respond with info to all gates
+var alarms = []; // list of recent alarms - only alarms per session are displayed
+var gates; // holds status of all server connected gates
 
+var _websocket = null;
+var reconnectTimeoutID = false;
+
+// state of addon - will be send to popup menu
+var gateAlert = {
+  connection : false,
+  displayStatus : undefined,
+  gates : []
+}
+
+var options = { "debug" : true }; // initial options object - will be overwritten by stored options
+
+/*
+ * initial function that restores options from local storage 
+ * by successful loading opens websocket
+ * by failure shows information in browser action
+ * @returns {undefined}
+ */
 function restoreOptions() {
   var gettingItem = browser.storage.local.get('gateAlertOptions');
   gettingItem.then((res) => {
-    
     if (res.gateAlertOptions){
       options = res.gateAlertOptions;
       wsConnect(); 
@@ -23,7 +34,10 @@ function restoreOptions() {
       browser.browserAction.setBadgeBackgroundColor({color: "red"});
       browser.browserAction.setBadgeText({text: "init"});
       browser.browserAction.setTitle({title: browser.i18n.getMessage("offline")});
+      log("No stored options found. Please go to settings and set options.");
     }
+  }).catch((err) => {
+    log(err);
   });
 }
 
@@ -35,25 +49,54 @@ function restoreOptions() {
  * @returns {undefined}
  */
 function notify(){
-  // modifies browser action badge
-  // offline
-  if (!gate.connection){ 
-    browser.browserAction.setBadgeBackgroundColor({color: "red"});
-    browser.browserAction.setBadgeText({text: "offline"});
-    browser.browserAction.setTitle({title: browser.i18n.getMessage("offline")});
+  if (gateAlert.connection && typeof gateAlert.displayStatus !== "undefined"){
+    if (alarms.length > 0){
+      //adding a badge to the status icon
+      browser.browserAction.setBadgeBackgroundColor({color: "red"});
+      browser.browserAction.setBadgeText({text: " " + alarms.length});
+    } else {
+      browser.browserAction.setBadgeBackgroundColor({color: "red"});
+      browser.browserAction.setBadgeText({text: ""});
+    }
   }
-  // online 
-  else if (alarms.length > 0){
-    //adding a badge to the status icon
-    browser.browserAction.setBadgeBackgroundColor({color: "red"});
-    browser.browserAction.setBadgeText({text: " " + alarms.length});
-  } else {
-    browser.browserAction.setBadgeBackgroundColor({color: "red"});
-    browser.browserAction.setBadgeText({text: ""});
-  }
-  // tell menu
-  browser.runtime.sendMessage({"type": "status", "alarms" : alarms, "status" : gate}).then().catch((err)=>{log(err,"Notifying menu/popup: runtime.sendMessage  maybe no popup visible")}); 
+  // tell menu/popup
+  log({"type": "status", "alarms" : alarms, "status" : gateAlert},"Notify:")
+  browser.runtime.sendMessage({"type": "status", "alarms" : alarms, "status" : gateAlert}).then().catch((err)=>{log(err,"Notifying menu/popup: runtime.sendMessage  maybe no popup visible")}); 
 }
+
+/*
+ * connection to server is made
+ * removes all warnings from browser action
+ * @returns {undefined}
+ */
+function showOnlineMode (){
+  browser.browserAction.setBadgeText({text: ""});
+}
+
+/*
+ * no connection to server
+ * show warnings in browser action
+ * @returns {undefined}
+ */
+function showOfflineMode(){
+  browser.browserAction.setBadgeBackgroundColor({color: "red"});
+  browser.browserAction.setBadgeText({text: "offline"});
+  browser.browserAction.setTitle({title: browser.i18n.getMessage("offline")});
+  gateAlert.displayStatus = undefined;
+}
+
+/*
+ * connection to server is online, but server is not connected to any gates
+ * show warnings in brwoser action
+ * @returns {undefined}
+ */
+function showNoGatesMode(){
+  browser.browserAction.setBadgeBackgroundColor({color: "red"});
+  browser.browserAction.setBadgeText({text: "NO GATES"});
+  browser.browserAction.setIcon({path: "icons/bell-o.svg"});
+  browser.browserAction.setTitle({title: browser.i18n.getMessage("noGates")});
+}
+
 
 /**
  * initializes and handles websocket  
@@ -68,9 +111,10 @@ function wsConnect() {
     
     _websocket.onopen = function() {
       log('Websocket connection opened');
-      gate.connection = true;
+      gateAlert.connection = true;
+      
       _websocket.send(JSON.stringify(hello));
-      browser.browserAction.setBadgeText({text: ""});
+      showOnlineMode();
            
     };
     
@@ -93,10 +137,13 @@ function wsConnect() {
           onAlarm(message); //old style {"msgType":"alarm","medianumber":"101892808","signature":"Unbekannt","title":"Unbekannt","available":"true","date":"2017-09-19T12:01:28.887Z"}
       } else 
       if (message.type === "status" || message.msgType === "status"){
-        if (message.data)
-          onGateStatus(message.data); //new api
+        gateAlert.gates = message.gates;
+        if (message.gates.length === 0)
+          showNoGatesMode();
         else
-          onGateStatus(message.status); //old style
+          onGatesStatus();
+        
+        
       }
       notify();
     };
@@ -108,10 +155,11 @@ function wsConnect() {
         //no server found
         log('Websocket connection error - server not found');
       }
-      gate.connection = false;
-      notify();
+      gateAlert.connection = false;
+      showOfflineMode();
       _websocket = null;
-      setTimeout(wsConnect,15000);
+      // reconnect in 15seconds
+      reconnectTimeoutID = setTimeout(wsConnect,15000);
     };
 
     _websocket.onerror = function(evt) {
@@ -122,30 +170,45 @@ function wsConnect() {
   }
 }
 
-
-
-
-/**
- * shows whether alarm/sound of the gate is ON or OFF by changing the icon in status bar
- * @param {type} status
+/*
+ * determines sound status of each gate and sets displayStatus which will be evaluated by menu.js
+ * @param {type} gates
  * @returns {undefined}
  */
-function onGateStatus(status){
-  //sound and other info
-  if (status === "on"){
-    gate.sound = true;
-    browser.browserAction.setIcon({path: "icons/bell-o.svg"});
+function onGatesStatus(){
+  
+  let overallState = undefined;  
+  
+  // loop through all gates 
+  for (let i = 0; i < gateAlert.gates.length; i++){
+    
+    // first call will set overallState
+    if (typeof overallState === "undefined")
+      overallState = gateAlert.gates[i].status;
+    
+    // if state of actual gate differs overallState > mixed mode
+    if (gateAlert.gates[i].status !== overallState){
+      gateAlert.displayStatus = "mixed";
+      browser.browserAction.setIcon({path: "icons/bell-o-mix.svg"}); // icon with marker
+      browser.browserAction.setTitle({title: browser.i18n.getMessage("alarmMixed")});
+      return
+    } 
+  }
+  
+  // overallState did not change during loop
+  gateAlert.displayStatus = overallState;
+  if (overallState){
+    browser.browserAction.setIcon({path: "icons/bell-o.svg"}); // standard bell ON
     browser.browserAction.setTitle({title: browser.i18n.getMessage("alarmOn")});
   } else {
-    gate.sound = false;
-    browser.browserAction.setIcon({path: "icons/bell-slash-o.svg"});
+    browser.browserAction.setIcon({path: "icons/bell-slash-o.svg"}); //  standard bell OFF - strikethough
     browser.browserAction.setTitle({title: browser.i18n.getMessage("alarmOff")});
-  }
+  } 
   
 }
 
 /**
- * received an alarm message - will show a browser notification if enabled
+ * received an alarm message - will show a operating system notification if enabled
  * https://developer.mozilla.org/en-US/Add-ons/WebExtensions/user_interface/Notifications
  * @param {type} alarm
  * @returns {undefined}
@@ -159,7 +222,7 @@ function onAlarm(alarm){
   //display native system notification if enabled in options
   if (options.notifications){
     var title = browser.i18n.getMessage("notificationTitle");
-    var content = browser.i18n.getMessage("notificationContent", [ alarm.title, alarm.medianumber, alarm.signature, browser.i18n.getMessage(alarm.available === "true" ? 'available' : 'borrowed') ]);
+    var content = browser.i18n.getMessage("notificationContent", [ alarm.title, alarm.medianumber, alarm.signature, browser.i18n.getMessage(alarm.available === "true" || alarm.available === true ? 'available' : 'borrowed') ]);
     browser.notifications.create({
       "type": "basic",
       "iconUrl": browser.extension.getURL("icons/bell-o.svg"),
@@ -183,48 +246,60 @@ function openExternal() {
 
 
 /**
- * Register message listener f.e. popup.js will fetch alarms here
+ * Register message listener 
+ * f.e. menu.js will fetch alarms here
+ * or request an sound change
  */
 browser.runtime.onMessage.addListener((msg) => {
   
   log(msg,"received message:");
   
-  //popup/menu opens requests status and alarms
+  // popup/menu is just opened and requests status and alarms
   if (msg.type === "fetchStatus"){
+    // send standard notify
     notify();
   } 
   
-  //popup triggers reconnect
+  // popup triggers a manual reconnect
   if (msg.type === "reconnect"){
+    // reconnects are usually handledby settimeout every 15sec
+    // interrupt settimeout if necessary
+    if (reconnectTimeoutID)
+      clearTimeout(reconnectTimeoutID);
+    reconnectTimeoutID = false;
+    
     wsConnect();
   } 
   
-  //popup triggers sound
+  // popup triggers sound ON/OFF
   if (msg.type === "sound"){
-    if (gate.sound === false)
-      _websocket.send(JSON.stringify({"type":"status", "status" : "turnOn"}));
-    if (gate.sound === true)
-      _websocket.send(JSON.stringify({"type":"status","status" : "turnOff"}));
+    if (msg.all){ // for ALL gates
+      _websocket.send(JSON.stringify({"type":"status", "all":true , "toStatus" : msg.toStatus}));
+    } else { // just ONE gate by id
+      _websocket.send(JSON.stringify({"type":"status", "id":msg.id, "toStatus" : msg.toStatus}));
+    }
   }
   
-  //empty the list
+  // empty the list for this session
   if (msg.type === "emptyList"){
     alarms = []; 
     notify();
   }
   
-  //open external application
+  // open external application defined in options
   if (msg.type === "openExternal"){
     openExternal();
   } 
   
-  //logging from menu
+  // logging from menu
   if (msg.type === "log"){
     log(msg.log, msg.intro);
   } 
   
-  //options have changed by options.js
+  // options have changed by options.js
   if (msg.type === "optionsChanged"){
+    
+    // server adress/port was changed, forces a reconnect
     if (options.address !== msg.options.gateAlertOptions.address || options.port !== msg.options.gateAlertOptions.port){
       log("new connection details, going to restart websocket");
       options = msg.options.gateAlertOptions;
@@ -232,7 +307,7 @@ browser.runtime.onMessage.addListener((msg) => {
     } else {
       options = msg.options.gateAlertOptions;
     }   
-    notify();
+    //notify();
   }
 });
 
@@ -243,8 +318,7 @@ browser.runtime.onMessage.addListener((msg) => {
  * @returns {undefined}
  */
 function log(message,intro) {
-  
-  if (options.debug){
+  if (options.debug === true){
     if (intro)
       console.log(intro + " -->");
     console.log(message);
@@ -257,5 +331,3 @@ function log(message,intro) {
 ///////////////
 document.addEventListener('DOMContentLoaded', restoreOptions);
 browser.notifications.onClicked.addListener(openExternal);
-options = { "debug" : false };
-

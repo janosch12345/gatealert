@@ -88,6 +88,11 @@
     "message": "Alarm is OFF",
     "description": "Title of the toolbar button if gate sound is off."
   },
+  
+  "alarmMixed": {
+    "message": "Alarm is partly OFF",
+    "description": "Title of the toolbar button if  sound of one of the gates is off."
+  },
     
   "unknown": {
     "message": "Unknown",
@@ -124,8 +129,28 @@
     "description": "Title of the sound button in menu."
   },
   
+  "gateNotConnected": {
+    "message": "Gate not connected",
+    "description": "Title of the sound button in list when gate is not connected"
+  },
+  
+    "buttonTurnOnSoundAll": {
+    "message": "Turn on acoustic alarm on all gates",
+    "description": "Title of the sound button in menu."
+  },
+  
+  "buttonTurnOffSoundAll": {
+    "message": "Turn off acoustic alarm on all gates",
+    "description": "Title of the sound button in menu."
+  },
+  
   "offline": {
     "message": "Server not available.",
     "description": "Title of toolbar button when application is offline."
+  },
+  
+  "noGates": {
+    "message": "No gates configured",
+    "description": "Browser action if no gate was configured"
   }
 }

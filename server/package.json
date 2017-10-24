@@ -1,0 +1,11 @@
+{
+  "name": "GateAlertServer",
+  "version": "0.0.1",
+  "author": "jan",
+  "contributors": [],
+  "dependencies": {
+    "mysql": "^2.15.0",
+    "sybase": "^1.2.1",
+    "websocket": "^1.0.24"
+  }
+}

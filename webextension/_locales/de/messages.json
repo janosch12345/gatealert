@@ -80,13 +80,18 @@
   },
    
   "alarmOn": {
-    "message": "Alarm is AN",
+    "message": "Alarm ist AN",
     "description": "Title of the toolbar button if gate sound is on."
   },
   
   "alarmOff": {
     "message": "Alarm ist AUS",
     "description": "Title of the toolbar button if gate sound is off."
+  },
+  
+  "alarmMixed": {
+    "message": "Alarm ist teilweise AUS",
+    "description": "Title of the toolbar button if  sound of one of the gates is off."
   },
     
   "unknown": {
@@ -115,17 +120,37 @@
   },
   
   "buttonTurnOnSound": {
-    "message": "Laut schalten",
+    "message": "Dieses Gate laut schalten",
     "description": "Title of the sound button in menu."
   },
   
   "buttonTurnOffSound": {
-    "message": "Stumm schalten",
+    "message": "Dieses Gate stumm schalten",
+    "description": "Title of the sound button in menu."
+  },
+  
+  "gateNotConnected": {
+    "message": "Gate nicht erreichbar",
+    "description": "Title of the sound button in list when gate is not connected"
+  },
+  
+  "buttonTurnOnSoundAll": {
+    "message": "Alle Gates laut schalten",
+    "description": "Title of the sound button in menu."
+  },
+  
+  "buttonTurnOffSoundAll": {
+    "message": "Alle Gates stumm schalten",
     "description": "Title of the sound button in menu."
   },
   
   "offline": {
     "message": "Server ist nicht erreichbar.",
     "description": "Title of toolbar button when application is offline."
+  },
+  
+  "noGates": {
+    "message": "Keine Gates konfiguriert",
+    "description": "Browser action if no gate was configured"
   }
 }
