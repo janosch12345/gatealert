@@ -11,8 +11,9 @@ This application consists of two parts:
  
 The add-on consists of two parts: 
 
-1. a small control area for enabling or disabling gate alarms, settings menu
-2. alarm list
+1. alarm list - displaying metadata if item which caused an alarm
+2. control area - enabling or disabling all gate alarms, settings menu, list erase and link to external application
+3. gate area - enable or disable gate alarm for each configured gate
 
 ### Installation
 
