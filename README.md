@@ -49,11 +49,15 @@ The add-on connects  to the application server via websocket. When an alarm is t
 
 ### Installation
 
-Download addon from AMO
+from xpi
+ 
+1. go to about:addons
+2. click on the small settings icon in the upper right corner and choose install add-on from file
+3. select xpi file from gatealert/webextension/build/gatealert*.xpi  
 
-or 
+or from ZIP
 
-1. zip the content of webextension folder.
+1. zip the content of webextension/src folder.
 2. go to about:addons
 3. click on the small settings icon in the upper right corner and choose install add-on from file
 4. select the zipped file from step 1
