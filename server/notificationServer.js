@@ -38,6 +38,7 @@ var specialRegex1 = config.korbRegex1;
 var specialRegex2 = config.korbRegex2;
 var medianumberRegex = config.medianumberRegex;
 
+var notificationServerHost = config.notificationServer.host;
 var notificationServerPort = config.notificationServer.port;
 
 function initNotificationServer() {
@@ -64,8 +65,8 @@ function initNotificationServer() {
       });
     }
 
-  }).listen(notificationServerPort, "localhost");
-  log('listening on localhost:' + notificationServerPort);
+  }).listen(notificationServerPort, notificationServerHost);
+  log('listening on :' + notificationServerHost + ":" + notificationServerPort);
 
   // testmessage
   //handleNotification(testNotification)
@@ -151,7 +152,11 @@ function handleNotification(notification) {
         
         // tell listening brwoser clients
         Main.broadcast(JSON.stringify(alarm));
-        saveAlarm({medianumber : meta.medianumber, uid : meta.uid, signature : meta.signature, status: meta.available, title: meta.title});
+        try {
+          saveAlarm({medianumber : meta.medianumber, uid : meta.uid, signature : meta.signature, status: meta.available, title: meta.title});
+        } catch (exc){
+          log("error on saving to AlarmDB", exc)
+        }
       });
     }
     

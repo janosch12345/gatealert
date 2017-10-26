@@ -24,6 +24,7 @@ var config = {
     port : 1337,
   },
   notificationServer : {
+    host : "ip of this machine",
     port : 65000,
   },
   gates : [
