@@ -82,6 +82,7 @@ function saveAlarm(alarm){
   if (config.alarmDB.saveAlarms === false)
     return 
   
+  dbConnection = mysql.createConnection(config.alarmDB);
   dbConnection.connect();
  
   // alarm = {medianumber : medianumber, uid : uid, signature : signature, status: available, title: title}
