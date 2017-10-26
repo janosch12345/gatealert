@@ -5,6 +5,7 @@
 /server/node_modules/sybase/JavaSybaseLink/dist/
 /server/node_modules/sybase/JavaSybaseLink/nbproject/private/
 /server/start.sh
+/server/control.sh
 /server/SQL.js
 /server/config.js
 todo
