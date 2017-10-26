@@ -4,9 +4,6 @@
 
 var debug = true; 
 
-// Optional. You will see this name in eg. 'ps' or 'top' command
-process.title = 'node-gateAlertServer';
-
 var config = require('./config');
 
 // port where we'll run the websocket server
@@ -56,7 +53,7 @@ wsServer.on('request', function (request) {
   
   // prevent unknown clients 
   if (!clientIsPermitted(request.remoteAddress)){
-    log('WS Connection rejected.');
+    log('WS Connection rejected remote: ' + request.remoteAddress);
     request.reject();
     return;
   }
