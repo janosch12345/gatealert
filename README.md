@@ -35,9 +35,14 @@ Also handleNotification in notificationServer has to be adapted to grep the medi
 
 ### start
 
-Set environment variables in start.sh and run server by
+Set environment variables and path in control.sh and run server by
 
-    ./start.sh
+    ./control.sh start
+    
+Stop service by
+
+    ./control.sh stop
+
 
 ## Firefox add-on
  

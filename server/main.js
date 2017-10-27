@@ -59,7 +59,7 @@ wsServer.on('request', function (request) {
   }
   
   log('WS Connection from origin '
-          + request.origin + '.',request.remoteAddress);
+          + request.origin + '. Address: ' + request.remoteAddress);
   
   var connection = request.accept(null, request.origin);
   // we need to know client index to remove them on 'close' event

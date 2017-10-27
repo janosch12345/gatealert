@@ -188,6 +188,10 @@ function log (msg,msgObject){
     console.log(msgObject);
 }
 
+dbConnection.on('error', function(err) {
+  log("Error on mysql connection",err)
+});
+
 // init is called by main
 exports.init = initNotificationServer;
 // test alarm triggered by browser client
