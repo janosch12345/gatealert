@@ -22,6 +22,7 @@ var NotificationServer = require('./notificationServer.js');
  */
 // list of currently connected clients (users)
 var clients = [];
+
 // list of configured gates
 var gates = [];
 
@@ -58,13 +59,14 @@ wsServer.on('request', function (request) {
     return;
   }
   
-  log('WS Connection from origin '
-          + request.origin + '. Address: ' + request.remoteAddress);
+  log('WS Connection from origin '+ request.origin + '. Address: ' + request.remoteAddress);
   
   var connection = request.accept(null, request.origin);
   // we need to know client index to remove them on 'close' event
+  //console.log(connection);
+  
   var index = clients.push(connection) - 1;
-  log('WS Connection accepted. ' + index);
+  log('WS Connection accepted.');
   
   connection.on('message', function (message) {
     
@@ -136,7 +138,7 @@ wsServer.on('request', function (request) {
     log("WS Peer "
             + connection.remoteAddress + " disconnected.");
     // remove user from the list of connected clients
-    clients.splice(index, 1);
+    // clients.splice(index, 1);
     
   });
 });
@@ -190,7 +192,13 @@ function testAlarm(arg) {
 function broadcast(messageString) {
   log("WS Broadcasting: " + messageString);
   for (var i = 0; i < clients.length; i++) {
-    clients[i].sendUTF(messageString);
+    try {
+      clients[i].sendUTF(messageString);
+    } catch (exception){
+      log("WS Broadcasting error Client not available - removing from list.");
+      clients.splice(i,1);
+    }
+    
   }
 }
 
