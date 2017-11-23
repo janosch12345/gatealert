@@ -34,8 +34,8 @@ var testNotification = "0200400022001300010035030008e00401500a203fa3000904320104
 //var testNotification2 = "020087002200730002003e030008e00401001158c5c5000904320101113036303032333033000000007e000000444544f232352d4500000036000000001606929a01c755810002003e030008e00401001158c5c5000904320101113036303032333033000000007e000000444544f232352d450000003600000000160692f901c75581000257cf";
 
 var notificationRegex = config.notificationRegex;
-var specialRegex1 = config.korbRegex1;
-var specialRegex2 = config.korbRegex2;
+var specialRegex1 = config.specialRegex1;
+var specialRegex2 = config.specialRegex2;
 var medianumberRegex = config.medianumberRegex;
 
 var notificationServerHost = config.notificationServer.host;
