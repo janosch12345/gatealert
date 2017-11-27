@@ -44,10 +44,12 @@ module.exports = class Gate{
             
             if (this.context.responseData === protocol.response.statusOn){ // response says alarm is on
               this.setGateInfoAlarmStatus(true); // save status 
+              this.avail = true;
               this.context.resolver(); // and resolve the promise
               this.initContext(); // reset context
             } else if (this.context.responseData === protocol.response.statusOff){ // response says alarm is off
               this.setGateInfoAlarmStatus(false);
+              this.avail = true;
               this.context.resolver();
               this.initContext();
             } else { // response is not matching our expectations, we reject the promise with an error message
@@ -80,13 +82,31 @@ module.exports = class Gate{
         this.context.responsePart++;
       } 
     }); 
-    this.socket.on('close', () => {  });
-    this.socket.on('error', (error) => { 
-      this.log("socket on ERROR:",error); 
+    this.socket.on('connect', () => { 
+      switch (this.context.type){
+        case "toggle":
+          this.log("=> toggle request, toggling to " + (this.context.toggleTo === true ? "ON" : "OFF"));
+          this.socket.write( this.context.toggleTo === true ? protocol.request.alarmOn : protocol.request.alarmOff );
+          break;
+        case "status": 
+          this.log("=> status request");
+          this.socket.write(protocol.request.status);
+          break;
+      }
       
+    });
+    this.socket.on('close', () => { 
+      this.socket.destroy();
+      
+    });
+    this.socket.on('error', (error) => { 
+      this.log("socket on ERROR:"," " +error.code || ""); 
+      this.avail = false;
       //reject an existing promise
-      if (this.context.rejecter)
+      if (this.context.rejecter){
         this.context.rejecter({ errorOn : "socket", error: true, errorMessage: error });
+        this.initContext();
+      }
     });
     
   }
@@ -109,7 +129,7 @@ module.exports = class Gate{
     this.context.msg = undefined;
     this.context.resolver = undefined;
     this.context.rejecter = undefined;
-  
+    
   }
   
   /**
@@ -186,16 +206,11 @@ module.exports = class Gate{
       this.context.resolver = resolve;
       this.context.rejecter = reject;
       this.context.type = "toggle";
-      //1st connect and send
-      try {
-        this.socket.connect(this.port, this.host, () => {
-          //this.log("connection opened: " + this.host + ':' + this.port);
-          this.log("=> toggle request, toggling to " + (newStatus === true ? "ON" : "OFF"));
-          this.socket.write( newStatus === true ? protocol.request.alarmOn : protocol.request.alarmOff );
-        });
-      } catch (exception) {
-       reject({ errorOn : "connect", error: true, errorMessage: exception });
-      }
+      this.context.toggleTo = newStatus;
+     
+      // if socket is not available the promise will be rejected by error event of socket
+      this.socket.connect(this.port, this.host);
+      
 
     });
   
@@ -206,7 +221,6 @@ module.exports = class Gate{
    * @returns {Promise}
    */ 
   getAlarmStatus (){
-    
     return new Promise(
             
     // connect 
@@ -220,37 +234,23 @@ module.exports = class Gate{
       
       // prevent multiple requests on gate
       // the last request for status is not long ago, we respond with the last result
-      if ((new Date()) - this.alarm.statusTS < minStatusRequestDelta && typeof this.alarm.status !== "undefined"&& typeof this.alarm.statusTS !== "undefined")
+      if ((new Date()) - this.alarm.statusTS < minStatusRequestDelta && typeof this.alarm.status !== "undefined" && typeof this.alarm.statusTS !== "undefined"){
         return resolve();//{status: this.alarm.status, statusTS : this.alarm.statusTS, id: this.id}
-
-      if (this.context.type)
+      }
+      if (this.context.type){
         return reject({ errorOn : "getAlarmStatus", error: true, errorMessage: "request in progress" });
-
+      }
       //save resolve and reject for async use
       this.context.resolver = resolve;
       this.context.rejecter = reject;
       this.context.type = "status";
-      //1st connect and send
       
-      this.socket.connect(this.port, this.host,  () => {
-          //this.log("connection opened: " + this.host + ':' + this.port);
-          this.log("=> status request");
-          this.socket.write(protocol.request.status);
-      });
+      // if socket is not available the promise will be rejected by error event of socket
+      this.socket.connect(this.port, this.host);
       
-      /*try {
-        this.socket.connect(this.port, this.host,  () => {
-          //this.log("connection opened: " + this.host + ':' + this.port);
-          this.log("=> status request");
-          this.socket.write(protocol.request.status);
-        });
-      } catch (exception) {
-        console.log("catch in gas")
-        reject({ errorOn : "connect", error: true, errorMessage: exception });
-      }*/
 
     });
     
   }
-}
+};
 

@@ -103,7 +103,10 @@ function onMessage(request) {
       let button = document.createElement('button');
       button.className = "button";
       // disable button when websocket is offline or gate not connected
-      button.disabled = request.status.connection === false || request.status.gates[i].avail === false ? true : false; 
+      //button.disabled = request.status.connection === false || request.status.gates[i].avail === false ? true : false; 
+      // disable button when websocket is offline
+      button.disabled = request.status.connection === false ? true : false;
+      
       // icon for button
       let img = document.createElement('img');
       img.className = "status";
@@ -111,6 +114,7 @@ function onMessage(request) {
       if (request.status.gates[i].avail === false){
         button.title = browser.i18n.getMessage("gateNotConnected");
         img.src = "/icons/exclamation-triangle.svg";
+        button.addEventListener('click',() => { browser.runtime.sendMessage({"type": "checkAvail", "id":request.status.gates[i].id}); });
       }
       else if (request.status.gates[i].status  === true){ 
         // sound of that gate is ON

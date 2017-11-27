@@ -262,7 +262,7 @@ browser.runtime.onMessage.addListener((msg) => {
   
   // popup triggers a manual reconnect
   if (msg.type === "reconnect"){
-    // reconnects are usually handledby settimeout every 15sec
+    // reconnects are usually handled by settimeout every 15sec
     // interrupt settimeout if necessary
     if (reconnectTimeoutID)
       clearTimeout(reconnectTimeoutID);
@@ -279,6 +279,13 @@ browser.runtime.onMessage.addListener((msg) => {
       _websocket.send(JSON.stringify({"type":"status", "id":msg.id, "toStatus" : msg.toStatus}));
     }
   }
+  
+  if (msg.type === "checkAvail"){
+     // just ONE gate by id
+    _websocket.send(JSON.stringify({"type":"gateCheck", "id":msg.id}));
+    
+  }
+  
   
   // empty the list for this session
   if (msg.type === "emptyList"){
@@ -303,6 +310,11 @@ browser.runtime.onMessage.addListener((msg) => {
     if (options.address !== msg.options.gateAlertOptions.address || options.port !== msg.options.gateAlertOptions.port){
       log("new connection details, going to restart websocket");
       options = msg.options.gateAlertOptions;
+      // interrupt settimeout if necessary
+      if (reconnectTimeoutID)
+        clearTimeout(reconnectTimeoutID);
+      reconnectTimeoutID = false;
+    
       wsConnect();
     } else {
       options = msg.options.gateAlertOptions;

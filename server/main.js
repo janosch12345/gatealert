@@ -85,10 +85,29 @@ wsServer.on('request', function (request) {
       if (msg.type === "init"){
 
         // wait for all the gates to return their status, only on available gates
-        Promise.all(gates.map(function(gate){if (gate.avail) return gate.getAlarmStatus()}))
+        Promise.all(gates.map(function(gate){/*if (gate.avail)*/ return gate.getAlarmStatus()}))
         .then(() => {
           broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
-        });        
+        })
+        .catch(() => {
+          broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+        });
+                
+      }
+      
+      // check availability of a gate,  triggered by click on button in ui
+      if (msg.type === "gateCheck"){ 
+          
+        let singleGate = gates.find(function(gate){return msg.id === gate.id});
+
+        singleGate.getAlarmStatus()
+        .then( () => {
+          broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+        })
+        .catch( () => {
+          broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+        });
+        
       }
       
       // request to turn ON or OFF sound 
@@ -98,10 +117,13 @@ wsServer.on('request', function (request) {
         if (msg.all){  
           
           // wait for all the gates to set and return their new status, only on available gates
-          Promise.all(gates.map(function(gate){ if (gate.avail) return gate.setAlarmStatus(msg.toStatus)}))
+          Promise.all(gates.map(function(gate){ /*if (gate.avail)*/ return gate.setAlarmStatus(msg.toStatus)}))
           .then(() => {
             broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
-          });
+          })
+          .catch(() => {
+            broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+          });;
             
         } 
         // request for sound change on a SINGLE gate, identified by gate.id, , only on available gates
@@ -114,7 +136,9 @@ wsServer.on('request', function (request) {
             .then( () => {
               broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
             })
-            .catch()
+            .catch( () => {
+              broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+            })
           }
         }
       }
@@ -152,7 +176,8 @@ for (let i in config.gates){
   // call for status of the gate
   aGate.init( (err) => {
     if (err){
-      log("ERROR during initialization of gate ", err)
+      //log("ERROR during initialization of gate ", err)
+      log("ERROR during initialization of gate: " + aGate.id)
     } 
     log("init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") done: " + JSON.stringify(aGate.getGateInfo()));
     gates.push(aGate);    
