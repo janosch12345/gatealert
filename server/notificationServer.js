@@ -116,13 +116,13 @@ function getCharFromHexString(bs) {
  */
 function handleNotification(notification) {
   
-  notification = notification.toUpperCase();
-  
   // catching keepalive message 02000a006e0000004b69
   if (notification === "02000a006e0000004b69"){
     log("KEEPALIVE received");
     return false;
   }
+  
+  notification = notification.toUpperCase();
   
   var count = 0;
   var matches;
