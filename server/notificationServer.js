@@ -54,7 +54,7 @@ function initNotificationServer() {
 
       // Add a 'data' event handler to this instance of socket
       sock.on('data', function (data) {
-        log(' ALARM <= ' + sock.remoteAddress + ': ' + data + '  (' + data.length + ')');
+        log(' NOTIFICATION <= ' + sock.remoteAddress + ': ' + data + '  (' + data.length + ')');
         handleNotification(data);
         //getMedianumbers(data);
       });
@@ -117,6 +117,12 @@ function getCharFromHexString(bs) {
 function handleNotification(notification) {
   
   notification = notification.toUpperCase();
+  
+  // catching keepalive message 02000a006e0000004b69
+  if (notification === "02000a006e0000004b69"){
+    log("KEEPALIVE received");
+    return false;
+  }
   
   var count = 0;
   var matches;
