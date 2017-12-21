@@ -1,6 +1,7 @@
 * { 
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
 button::-moz-focus-inner { border: 0; }
@@ -9,6 +10,7 @@ body {
   background-color: #f1f2f3;
   font-family: sans; 
   font-size: 0.8em;
+  min-width:400px;
 }
 
 .gatealert-alarms {
@@ -34,46 +36,75 @@ body {
   padding-bottom: 0px;
 }
 
-.gatealert-controls {
-  list-style-type: none; 
-  width: 100%;
-}
 
 .row{
   display:block;
   width: 100%;
 }
 
-.gate {
-  display: flex;
-  flex-direction: row;
-  background-color: #fafafa
-}
 
-.gate button {
-  background-color: #fafafa
-}
 
 .gatealert-controls {
   display: inline-flex;
   flex-direction: row;
+  list-style-type: none; 
+  width: 100%;
 }
 
-.gatealert-controls button, .gate button{
+.gatealert-controls button{
   border: 0px solid transparent;
   line-height: 40px;
   flex-basis: 25%;
-  flex-grow: 1;
+  flex-grow: 0;
 }
 
-.gatealert-gate-id {
+.gate {
+  display: flex;
+  flex-direction: row;
+ /* display: block;*/
+  background-color: #fafafa;
+  width:100%;
+}
+
+.gate button {
+  background-color: #fafafa;
+  border: 0px solid transparent;
+  line-height: 40px;
+  /*min-width: 25%;
+  display: inline;*/
+  flex-basis: 20%;
+  flex-grow: 0;
+}
+
+.gatealert-gate-id, .gatealert-gate-counter{
   border: 0px solid transparent;
   padding-left:10px;
+  padding-right:10px;
   line-height: 40px;
-  flex-basis: 75%;
-  flex-grow: 1;
   white-space: nowrap;
   font-size: 1.1em;
+}
+
+.gatealert-gate-id.full {
+  flex-basis: 80%;
+  flex-grow: 0;
+  
+  /*display: inline;
+  min-width: 25%;*/
+}
+.gatealert-gate-id.counter {
+  flex-basis: 55%;
+  flex-grow: 0;
+  
+  /*display: inline;
+  min-width: 25%;*/
+}
+
+.gatealert-gate-counter{
+  /*float:right;
+  display: inline;*/
+  flex-basis: 25%;
+  flex-grow: 1;
 }
 
 .gatealert-controls button:hover, .gate button:hover {
@@ -87,7 +118,7 @@ body {
   background-color: #ccc;
 }
 
-.gatealert-controls button > img, .gate button > img {
+.gatealert-controls button > img, .gate button > img , .gatealert-gate-counter > img{
   margin:0 3px;
   width:16px;
   height: 0.9em;
@@ -96,3 +127,6 @@ body {
 .hide{
   display: none;
 }
+
+
+

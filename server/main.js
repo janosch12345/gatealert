@@ -13,6 +13,9 @@ var webSocketsServerPort = config.mainServer.port;
 var webSocketServer = require('websocket').server;
 var http = require('http');
 
+// cronjob like scheduler to upload counter values
+var schedule = require('node-schedule');
+
 // Gate client class and notification server
 var Gate = require('./gateClass.js');
 var NotificationServer = require('./notificationServer.js');
@@ -25,6 +28,7 @@ var clients = [];
 
 // list of configured gates
 var gates = [];
+var peopleCounterIntervalId = false;
 
 /**
  * HTTP server
@@ -145,16 +149,40 @@ wsServer.on('request', function (request) {
 
       // test and debug messages
       if (msg.type === "test") {
-        if (msg.test === "on")
+        if (msg.test === "on") {
           timeoutId = setTimeout(randomAlarm, Math.floor(Math.random() * 10) * 1000, 'funky');
-        else if (msg.test === "off"){
+        } else if (msg.test === "off"){
           clearTimeout(timeoutId);
         } else if (msg.test === "alarm"){
           testAlarm(); 
+        } else if (msg.test === "peopleCounter"){
+          //console.log(gates)
+          Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues()}))
+          .then(() => {
+            broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+          })
+          .catch(() => {
+            broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+          });
         }
-      } 
+      }
+      // not yet implemented in add on
+      if (msg.type === "getPeopleCounterValues"){
 
+        // wait for all the gates to return their status, only on available gates
+        Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues()}))
+        .then(() => {
+          broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+        })
+        .catch(() => {
+          broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+        });
+                
+      }
     }
+    
+    
+    
   });
 
   // user disconnected
@@ -169,20 +197,35 @@ wsServer.on('request', function (request) {
 
 
 /**
- * init all gates from config 
+ * init all gates configured in config 
  */
 for (let i in config.gates){
-  let aGate = new Gate(config.gates[i].host,config.gates[i].port, config.gates[i].id);
+  let aGate = new Gate(config.gates[i].host,config.gates[i].port, config.gates[i].id, config.gates[i].counter);
   // call for status of the gate
-  aGate.init( (err) => {
-    if (err){
-      //log("ERROR during initialization of gate ", err)
-      log("ERROR during initialization of gate: " + aGate.id)
-    } 
-    log("init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") done: " + JSON.stringify(aGate.getGateInfo()));
-    gates.push(aGate);    
+  
+  aGate.init().then(() => {
+    gates.push(aGate);
+    log("init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") done: " + JSON.stringify(aGate.getInfo()));
+    if (gates.length === config.gates.length && !peopleCounterIntervalId && config.peopleCounterReadingInterval != false){
+      //peopleCounterIntervalId = setInterval(getPeopleCounterValues, config.peopleCounterReadingInterval);
+      var j = schedule.scheduleJob(config.peopleCounterReadingInterval, getPeopleCounterValues);
+      log("PeopleCounter scheduler started: " + config.peopleCounterReadingInterval);
+    }
+  }).catch( err => {
+    
+    gates.push(aGate);
+    log("ERROR during init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") failed: " + JSON.stringify(err));
+    if (gates.length === config.gates.length && !peopleCounterIntervalId && config.peopleCounterReadingInterval != false){
+      //peopleCounterIntervalId = setInterval(getPeopleCounterValues, config.peopleCounterReadingInterval);
+      //log("PeopleCounterPollingInterval started: " + peopleCounterIntervalId);
+      var j = schedule.scheduleJob(config.peopleCounterReadingInterval, getPeopleCounterValues);
+      log("PeopleCounter scheduler started: " + config.peopleCounterReadingInterval);
+    }
   });
+  
 }
+
+// 
 
 /**
  * start the Notification server
@@ -194,7 +237,17 @@ NotificationServer.init();
  * Helpers
  */
 function getGateStates(){
-  return gates.map( function(gate){return gate.getGateInfo() });
+  return gates.map( function(gate){return gate.getInfo() });
+}
+
+function getPeopleCounterValues(){
+  Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues(config.alarmDB.savePeopleCounterValues)}))
+  .then(() => {
+    broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+  })
+  .catch(() => {
+    broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+  });
 }
 
 
@@ -250,8 +303,11 @@ function clientIsPermitted(address){
 }
 
 function log (msg,msgObject){
+  let d = new Date();
+  let dString = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+ " " + ("0"+d.getHours()).slice(-2) + ':' + ("0" + d.getMinutes()).slice(-2) + ':' + ("0" + d.getSeconds()).slice(-2);
+  
   if (debug)
-    console.log((new Date()) + " MAIN:", msg);
+    console.log(dString + " MAIN:", msg);
   if (msgObject)
     console.log(msgObject);
 }

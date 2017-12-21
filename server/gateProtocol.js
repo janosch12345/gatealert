@@ -24,11 +24,6 @@ protocol.request.status[12] = 0x12;
 
 //protocol.request.status = new Buffer(0x02, 0x00, 0x0D, 0xFF, 0x8A, 0x02, 0x01, 0x01, 0x00, 0x09, 0x01, 0x80, 0x12);
 //answer:
-//var statusOn  = '140080000000000000000003000000000000F954';
-//var statusOff = '14008000000000000000000000000000000097FC';
-//var statusOn  = '02002A008A00011E00090303000000000000000000000000000000000000000000000000000000005F9F';
-//var statusOff = '02002A008A00011E00090300000000000000000000000000000000000000000000000000000000001D9C';
-
 protocol.response.statusOn  = '02002A008A00011E00090F0F00000000000000000000000000000000000000000000000000000000121E';
 protocol.response.statusOff = '02002A008A00011E00090F00000000000000000000000000000000000000000000000000000000005810';
 
@@ -145,5 +140,71 @@ protocol.request.alarmOff[43] = 0x59;
 
 //var alarmChangeOk = '06008100AFDD';
 protocol.response.alarmChangeOk   = '020008008B009A8D';
+
+// Gate counter module new since 0.5
+//Anfrage Peoplecounter Values
+//02 00 12 FF 9F 00 0D 02 02 00 08 01 77 00 EE 02 44 31
+protocol.request.peopleCounterValues = new Buffer(18);
+protocol.request.peopleCounterValues[0] = 0x02;
+protocol.request.peopleCounterValues[1] = 0x00;
+protocol.request.peopleCounterValues[2] = 0x12;
+protocol.request.peopleCounterValues[3] = 0xFF;
+protocol.request.peopleCounterValues[4] = 0x9F;
+protocol.request.peopleCounterValues[5] = 0x00;
+protocol.request.peopleCounterValues[6] = 0x0D;
+protocol.request.peopleCounterValues[7] = 0x02;
+protocol.request.peopleCounterValues[8] = 0x02;
+protocol.request.peopleCounterValues[9] = 0x00;
+protocol.request.peopleCounterValues[10] = 0x08;
+protocol.request.peopleCounterValues[11] = 0x01;
+protocol.request.peopleCounterValues[12] = 0x77;
+protocol.request.peopleCounterValues[13] = 0x00;
+protocol.request.peopleCounterValues[14] = 0xEE;
+protocol.request.peopleCounterValues[15] = 0x02;
+protocol.request.peopleCounterValues[16] = 0x44;
+protocol.request.peopleCounterValues[17] = 0x31;
+
+// setzen des peoplecounter value auf 0
+// 02 00 22 FF 9F 00 0D 02 02 00 18 01 78 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 B0 9D 41 38
+protocol.request.resetPeopleCounterValues = new Buffer(34);
+protocol.request.resetPeopleCounterValues[0] = 0x02;
+protocol.request.resetPeopleCounterValues[1] = 0x00;
+protocol.request.resetPeopleCounterValues[2] = 0x22;
+protocol.request.resetPeopleCounterValues[3] = 0xFF;
+protocol.request.resetPeopleCounterValues[4] = 0x9F;
+protocol.request.resetPeopleCounterValues[5] = 0x00;
+protocol.request.resetPeopleCounterValues[6] = 0x0D;
+protocol.request.resetPeopleCounterValues[7] = 0x02;
+protocol.request.resetPeopleCounterValues[8] = 0x02;
+protocol.request.resetPeopleCounterValues[9] = 0x00;
+protocol.request.resetPeopleCounterValues[10] = 0x18;
+protocol.request.resetPeopleCounterValues[11] = 0x01;
+protocol.request.resetPeopleCounterValues[12] = 0x078;
+protocol.request.resetPeopleCounterValues[13] = 0x00;
+protocol.request.resetPeopleCounterValues[14] = 0x00;
+protocol.request.resetPeopleCounterValues[15] = 0x00;
+protocol.request.resetPeopleCounterValues[16] = 0x00;
+protocol.request.resetPeopleCounterValues[17] = 0x00;
+protocol.request.resetPeopleCounterValues[18] = 0x00;
+protocol.request.resetPeopleCounterValues[19] = 0x00;
+protocol.request.resetPeopleCounterValues[20] = 0x00;
+protocol.request.resetPeopleCounterValues[21] = 0x00;
+protocol.request.resetPeopleCounterValues[22] = 0x00;
+protocol.request.resetPeopleCounterValues[23] = 0x00;
+protocol.request.resetPeopleCounterValues[24] = 0x00;
+protocol.request.resetPeopleCounterValues[25] = 0x00;
+protocol.request.resetPeopleCounterValues[26] = 0x00;
+protocol.request.resetPeopleCounterValues[27] = 0x00;
+protocol.request.resetPeopleCounterValues[28] = 0x00;
+protocol.request.resetPeopleCounterValues[29] = 0x00;
+protocol.request.resetPeopleCounterValues[30] = 0xB0;
+protocol.request.resetPeopleCounterValues[31] = 0x9D;
+protocol.request.resetPeopleCounterValues[32] = 0x41;
+protocol.request.resetPeopleCounterValues[33] = 0x38;
+
+// reset response
+// 02 00 10 00 9F 00 02 00 08 01 78 00 26 81 6D 1F
+// fuer Status OK
+protocol.response.resetPeopleCounterValuesOK = "020010009F0002000801780026816D1F";
 
 module.exports = protocol;

@@ -2,14 +2,15 @@
 var debug = true;
 //external ressources
 var net = require('net');
-var mysql = require('mysql');
+
+var db = require('./db.js');
 var lms = require('./lms.js');
 var Main = require('./main.js');
 var config = require('./config');
 
 var allowedClients = config.gates.map(function(g){return g.host});
 
-var dbConnection = mysql.createConnection(config.alarmDB);
+//var dbConnection = mysql.createConnection(config.alarmDB);
 
 
 // preconfigured dummy items which are also tagged with rfid
@@ -54,7 +55,7 @@ function initNotificationServer() {
 
       // Add a 'data' event handler to this instance of socket
       sock.on('data', function (data) {
-        log(' NOTIFICATION <= ' + sock.remoteAddress + ': ' + data + '  (' + data.length + ')');
+        log('NOTIFICATION <= ' + sock.remoteAddress + ': ' + data + '  (' + data.length + ')');
         handleNotification(data);
         //getMedianumbers(data);
       });
@@ -70,28 +71,6 @@ function initNotificationServer() {
 
   // testmessage
   //handleNotification(testNotification)
-}
-
-/**
- * saving an alarm in a corresponding database
- * @param {type} alarm
- * @returns {undefined}
- */
-function saveAlarm(alarm){
-  
-  if (config.alarmDB.saveAlarms === false)
-    return 
-  
-  dbConnection = mysql.createConnection(config.alarmDB);
-  dbConnection.connect();
- 
-  // alarm = {medianumber : medianumber, uid : uid, signature : signature, status: available, title: title}
-  dbConnection.query('INSERT INTO alarms SET ?', alarm, function (error, result) {
-    if (error) console.error(error);
-    else log(result);
-  });
- 
-  dbConnection.end();
 }
 
 /**
@@ -160,7 +139,7 @@ function handleNotification(notification) {
         // tell listening brwoser clients
         Main.broadcast(JSON.stringify(alarm));
         try {
-          saveAlarm({medianumber : meta.medianumber, uid : meta.uid, signature : meta.signature, status: meta.available, title: meta.title});
+          db.saveAlarm({medianumber : meta.medianumber, uid : meta.uid, signature : meta.signature, status: meta.available, title: meta.title});
         } catch (exc){
           log("error on saving to AlarmDB", exc)
         }
@@ -188,15 +167,15 @@ function handleNotification(notification) {
  * @returns {undefined}
  */
 function log (msg,msgObject){
+  let d = new Date();
+  let dString = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+ " " + ("0"+d.getHours()).slice(-2) + ':' + ("0" + d.getMinutes()).slice(-2) + ':' + ("0" + d.getSeconds()).slice(-2);
   if (debug)
-    console.log((new Date()) + " NOTIFICATIONSRV:", msg);
+    console.log(dString + " NOTIFICATIONSRV:", msg);
   if (msgObject)
     console.log(msgObject);
 }
 
-dbConnection.on('error', function(err) {
-  log("Error on mysql connection",err)
-});
+
 
 // init is called by main
 exports.init = initNotificationServer;

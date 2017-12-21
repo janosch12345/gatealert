@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="menu.css"/>
+  </head>
+  <body>
+    <div class="gatealert-alarms" id="gatealert-alarms">      
+    </div>
+    <div class="gatealert-controls">
+      <button class="button gatealert-control state" id="gatealert-menu-state"><img src="../icons/refresh.svg"></button>
+      <button class="button gatealert-control sound" id="gatealert-menu-sound"><img id="gatealert-menu-sound-img" src="../icons/bell-slash-o.svg"></button>
+      <button class="button gatealert-control empty" id="gatealert-menu-empty"><img src="../icons/file-o.svg"></button>
+      <button class="button gatealert-control external" id="gatealert-menu-external"><img src="../icons/external-link.svg"></button>
+      <button class="button gatealert-control settings" id="gatealert-menu-settings"><img src="../icons/sliders.svg"></button>
+    </div>
+    <div class="" id="gatealert-gates">
+      
+      <div class="row">
+        <div class="gate">
+          <button class="button gatealert-control sound" id="gatealert-menu-sound">
+            <img id="gatealert-menu-sound-img" src="../icons/bell-slash-o.svg">
+          </button>
+          <div class="gatealert-gate-id counter">Eingang Min</div>
+          <div class="gatealert-gate-counter">
+            <img id="gatealert-menu-sound-img" src="../icons/users.svg"> 
+            23 (<span style="color:green">in: 423</span> <span style="color:red">out: 400</span>) 
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="gate">
+          <button class="button gatealert-control sound" id="gatealert-menu-sound">
+            <img id="gatealert-menu-sound-img" src="../icons/bell-slash-o.svg">
+          </button>
+          <div class="gatealert-gate-id full">Eingang Full</div>
+        </div>
+      </div>
+      
+      
+    </div>
+    <script src="menu.js"></script>
+  </body>
+</html>

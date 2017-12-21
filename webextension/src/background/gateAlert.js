@@ -260,7 +260,7 @@ browser.runtime.onMessage.addListener((msg) => {
     notify();
   } 
   
-  // popup triggers a manual reconnect
+  // popup triggers a manual reconnect to the websocket 
   if (msg.type === "reconnect"){
     // reconnects are usually handled by settimeout every 15sec
     // interrupt settimeout if necessary
@@ -280,6 +280,7 @@ browser.runtime.onMessage.addListener((msg) => {
     }
   }
   
+  // will make the server reconnecting by requesting alarm status
   if (msg.type === "checkAvail"){
      // just ONE gate by id
     _websocket.send(JSON.stringify({"type":"gateCheck", "id":msg.id}));
@@ -319,7 +320,7 @@ browser.runtime.onMessage.addListener((msg) => {
     } else {
       options = msg.options.gateAlertOptions;
     }   
-    //notify();
+    
   }
 });
 

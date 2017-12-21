@@ -36,7 +36,7 @@ document.addEventListener("click", (e) => {
  * @returns {undefined}
  */
 function onMessage(request) {
-                  
+       console.log(request)           
   if (request.type === "status"){
     // display alarms 
     // first empty the list
@@ -129,12 +129,25 @@ function onMessage(request) {
       }
       // name/id 
       let idDiv = document.createElement('div');
-      idDiv.className = "gatealert-gate-id";
+      idDiv.className = request.status.gates[i].counter ? "gatealert-gate-id counter" : "gatealert-gate-id full";
       idDiv.appendChild(document.createTextNode(request.status.gates[i].id));
-      
       button.appendChild(img);
       gate.appendChild(button);
       gate.appendChild(idDiv);
+      
+      if (request.status.gates[i].counter){
+        let counterDiv = document.createElement('div');
+        counterDiv.className = "gatealert-gate-counter" ;
+        let userImg = document.createElement('img');
+        userImg.src = "/icons/users.svg";
+        counterDiv.appendChild(userImg);
+        let total = request.status.gates[i].counter.in - request.status.gates[i].counter.out
+        counterDiv.appendChild(document.createTextNode(total));
+        counterDiv.title = formattedTime(request.status.gates[i].counter.ts) + " In: " + request.status.gates[i].counter.in + " Out: " + request.status.gates[i].counter.out;  
+        gate.appendChild(counterDiv);
+      }
+      
+      
       row.appendChild(gate);
       gateList.appendChild(row);
     } // end of gate info 
@@ -148,6 +161,16 @@ function onMessage(request) {
  */
 function formattedDate(date){
   return ("0" + date.getHours()).slice(-2) + ":" +  ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
+}
+
+function formattedTime(date){
+  try {
+    date = new Date(date);
+    return ("0" + date.getHours()).slice(-2) + ":" +  ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
+  } catch (exc){
+    return false;
+  }
+  
 }
 
 //////

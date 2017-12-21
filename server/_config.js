@@ -1,13 +1,16 @@
 var config = {
   useXHRForMetadata : true,
-  XHREndpoint : "http://kobz22.bib-bvb.de/cgi-bin/btw-cgi/gatealarm/gatealarm.pl?medianumber=",
+  XHREndpoint : "http://example.org/script.php?medianumber=",
   medianumberRegex : /^[FDZ0-9]\d{7}[X0-9]$/,
   notificationRegex : /(E004[0-9A-F]{12})(\d{6})(3\d|44|5A)([0-9]{6})(3\d)(3\d)(3\d)(3\d)(3\d|58)(3\d)(3\d)(3\d)/g,
   specialRegex1 : /(31)([0-9]{6})(0000)(33)(32)(00000000)/,
   specialRegex2 : /(30)([0-9]{6})(30)(30)(30)(30)(000000)/,
+  peopleCounterValuesRegex : /(020020009F000200180177000000000000000000)([0-9a-fA-F]{8})([0-9a-fA-F]{8})([0-9a-fA-F]{8})/g,
   minStatusRequestDelta : 30000,
+  peopleCounterReadingInterval : '0,15,30,45 * * * *', // || false - 
   alarmDB : {
     saveAlarms : true,
+    savePeopleCounterValues : true,
     host     : process.env.ALARMDBHOST,
     user     : process.env.ALARMDBUSER,
     password : process.env.ALARMDBPASS,
