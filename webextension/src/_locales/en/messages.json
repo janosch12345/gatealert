@@ -5,7 +5,7 @@
   },
 
   "extensionDescription": {
-    "message": "A browser extension especially for libraries using RFID security devices by Feig. Shows the latest alerts and enables to switch on/off acoustic alarms. Needs a server application.",
+    "message": "A browser extension especially for libraries using RFID security devices by Feig. Shows the latest alerts and number of users (if available) and enables to switch on/off acoustic alarms. Needs a server application.",
     "description": "Description of the extension."
   },
 

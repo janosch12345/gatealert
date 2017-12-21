@@ -135,7 +135,7 @@ function onMessage(request) {
       gate.appendChild(button);
       gate.appendChild(idDiv);
       
-      if (request.status.gates[i].counter){
+      if (request.status.gates[i].counter && request.status.gates[i].avail === true){
         let counterDiv = document.createElement('div');
         counterDiv.className = "gatealert-gate-counter" ;
         let userImg = document.createElement('img');
@@ -143,7 +143,7 @@ function onMessage(request) {
         counterDiv.appendChild(userImg);
         let total = request.status.gates[i].counter.in - request.status.gates[i].counter.out
         counterDiv.appendChild(document.createTextNode(total));
-        counterDiv.title = formattedTime(request.status.gates[i].counter.ts) + " In: " + request.status.gates[i].counter.in + " Out: " + request.status.gates[i].counter.out;  
+        counterDiv.title = " In: " + request.status.gates[i].counter.in + " Out: " + request.status.gates[i].counter.out + "  (" + formattedTime(request.status.gates[i].counter.ts) + ")";  
         gate.appendChild(counterDiv);
       }
       

@@ -5,7 +5,7 @@
   },
 
   "extensionDescription": {
-    "message": "Eine Browsererweiterung speziell für Bibliotheken mit RFID-Diebstahlsicherungsanlagen der Firma Feig. Zeigt aktuelle Alarme und bietet die Möglichkeit das Gate laut/stumm zu schalten.",
+    "message": "Eine Browsererweiterung speziell für Bibliotheken mit RFID-Diebstahlsicherungsanlagen der Firma Feig. Zeigt aktuelle Alarme und Besucherzahlen (falls verfügbar) und bietet die Möglichkeit Gates laut/stumm zu schalten. ",
     "description": "Description of the extension."
   },
 
