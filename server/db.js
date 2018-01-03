@@ -31,7 +31,7 @@ var db = {
       dbConnection = mysql.createConnection(config.alarmDB);
       dbConnection.connect();
 
-      // alarm = {medianumber : medianumber, uid : uid, signature : signature, status: available, title: title}
+      // counter = { ... }
       dbConnection.query('INSERT INTO peoplecounter SET ?', counter, function (error, result) {
         if (error) log("error on DB insert",error);
         else {

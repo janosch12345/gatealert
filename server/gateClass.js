@@ -86,13 +86,13 @@ module.exports = class Gate{
             break;
           case "resetPCValues" :
             // what about retries
-       //     this.socket.destroy();
+            this.socket.destroy();
             
             if (this.context.responseData === protocol.response.resetPeopleCounterValuesOK){ // response says reset is done
               this.context.resolver(); // and resolve the promise
               this.initContext(); // reset context
             } else {
-              this.context.rejecter({ errorOn : "resetPCValues", error: true, errorMessage: "no valid response from gate" });
+              this.context.rejecter({ errorOn : "resetPCValues", error: true, id: this.id ,errorMessage: "no valid response from gate" });
               this.initContext();
             }
           

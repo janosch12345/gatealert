@@ -7,7 +7,8 @@ var config = {
   specialRegex2 : /(30)([0-9]{6})(30)(30)(30)(30)(000000)/,
   peopleCounterValuesRegex : /(020020009F000200180177000000000000000000)([0-9a-fA-F]{8})([0-9a-fA-F]{8})([0-9a-fA-F]{8})/g,
   minStatusRequestDelta : 30000,
-  peopleCounterReadingInterval : '0,15,30,45 * * * *', // || false - 
+  peopleCounterReadInterval : '0,15,30,45 * * * *', // || false , 
+  peopleCounterResetInterval : '59 23 * * *', // || false , 
   alarmDB : {
     saveAlarms : true,
     savePeopleCounterValues : true,

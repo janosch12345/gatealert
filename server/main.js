@@ -15,6 +15,8 @@ var http = require('http');
 
 // cronjob like scheduler to upload counter values
 var schedule = require('node-schedule');
+var j = false; // scheduler
+var r = false; // reset scheduler
 
 // Gate client class and notification server
 var Gate = require('./gateClass.js');
@@ -28,7 +30,6 @@ var clients = [];
 
 // list of configured gates
 var gates = [];
-var peopleCounterIntervalId = false;
 
 /**
  * HTTP server
@@ -206,20 +207,25 @@ for (let i in config.gates){
   aGate.init().then(() => {
     gates.push(aGate);
     log("init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") done: " + JSON.stringify(aGate.getInfo()));
-    if (gates.length === config.gates.length && !peopleCounterIntervalId && config.peopleCounterReadingInterval != false){
-      //peopleCounterIntervalId = setInterval(getPeopleCounterValues, config.peopleCounterReadingInterval);
-      var j = schedule.scheduleJob(config.peopleCounterReadingInterval, getPeopleCounterValues);
-      log("PeopleCounter scheduler started: " + config.peopleCounterReadingInterval);
+    if (gates.length === config.gates.length){
+      if (!j && config.peopleCounterReadInterval != false){
+        initReadScheduler();
+      }
+      if (!r && config.peopleCounterResetInterval != false){
+        initResetScheduler();
+      }
     }
   }).catch( err => {
     
     gates.push(aGate);
     log("ERROR during init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") failed: " + JSON.stringify(err));
-    if (gates.length === config.gates.length && !peopleCounterIntervalId && config.peopleCounterReadingInterval != false){
-      //peopleCounterIntervalId = setInterval(getPeopleCounterValues, config.peopleCounterReadingInterval);
-      //log("PeopleCounterPollingInterval started: " + peopleCounterIntervalId);
-      var j = schedule.scheduleJob(config.peopleCounterReadingInterval, getPeopleCounterValues);
-      log("PeopleCounter scheduler started: " + config.peopleCounterReadingInterval);
+    if (gates.length === config.gates.length){
+      if (!j && config.peopleCounterReadInterval != false){
+        initReadScheduler();
+      }
+      if (!r && config.peopleCounterResetInterval != false){
+        initResetScheduler();
+      }
     }
   });
   
@@ -240,6 +246,11 @@ function getGateStates(){
   return gates.map( function(gate){return gate.getInfo() });
 }
 
+function initReadScheduler(){
+  j = schedule.scheduleJob(config.peopleCounterReadInterval, getPeopleCounterValues);
+  log("PeopleCounter READ scheduler started: " + config.peopleCounterReadInterval);
+}
+
 function getPeopleCounterValues(){
   Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues(config.alarmDB.savePeopleCounterValues)}))
   .then(() => {
@@ -247,6 +258,23 @@ function getPeopleCounterValues(){
   })
   .catch(() => {
     broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+  });
+}
+
+function initResetScheduler(){
+  r = schedule.scheduleJob(config.peopleCounterResetInterval, resetPeopleCounterValues);
+  log("PeopleCounter RESET scheduler started: " + config.peopleCounterResetInterval);
+}
+
+function resetPeopleCounterValues(){
+  Promise.all(gates.map(function(gate){if (gate.counter) return gate.resetPeopleCounterValues()}))
+  .then(() => {
+    log("People Counter reset done.")
+    //broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+  })
+  .catch((exceptions) => {
+    //broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+    log("Error during PC reset value: ",exceptions)
   });
 }
 
