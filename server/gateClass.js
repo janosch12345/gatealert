@@ -311,7 +311,7 @@ module.exports = class Gate{
     // else 
     (resolve, reject) => {
       if (this.context.type)
-        return reject({ errorOn : "setAlarmStatus", error: true, errorMessage: "request in progress" });
+        return reject({ id : this.id, errorOn : "setAlarmStatus", error: true, errorMessage: "request in progress: "+this.context.type });
 
       //save resolve and reject for async use
       this.context.resolver = resolve;
@@ -348,7 +348,7 @@ module.exports = class Gate{
         return resolve();//{status: this.alarm.status, statusTS : this.alarm.statusTS, id: this.id}
       }
       if (this.context.type){
-        return reject({ errorOn : "getAlarmStatus", error: true, errorMessage: "request in progress" });
+        return reject({ id : this.id, errorOn : "getAlarmStatus", error: true, errorMessage: "request in progress: "+this.context.type });
       }
       //save resolve and reject for async use
       this.context.resolver = resolve;
@@ -365,7 +365,7 @@ module.exports = class Gate{
     return new Promise(
     (resolve, reject) => {
       if (this.context.type)
-        return reject({ errorOn : "resetPeopleCounterValues", error: true, errorMessage: "request in progress" });
+        return reject({ id : this.id, errorOn : "resetPeopleCounterValues", error: true, errorMessage: "request in progress: "+this.context.type });
 
       //save resolve and reject for async use
       this.context.resolver = resolve;
@@ -389,7 +389,7 @@ module.exports = class Gate{
       
       // prevent multiple requests on gate
       if (this.context.type){
-        return reject({ errorOn : "getPeopleCounterValues", error: true, errorMessage: "request in progress" });
+        return reject({ id : this.id, errorOn : "getPeopleCounterValues", error: true, errorMessage: "request in progress: "+this.context.type });
       }
       
       //save resolve and reject for async use

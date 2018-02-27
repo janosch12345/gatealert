@@ -256,8 +256,8 @@ function getPeopleCounterValues(){
   .then(() => {
     broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
   })
-  .catch((error) => {
-    log("Error occured on scheduled getPeopleCounterValues", error)
+  .catch((exceptions) => {
+    log("Error occured on scheduled getPeopleCounterValues", exceptions)
     broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
   });
 }
@@ -275,7 +275,7 @@ function resetPeopleCounterValues(){
   })
   .catch((exceptions) => {
     //broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
-    log("Error during PC reset value: ",exceptions)
+    log("Error occured on scheduled PC reset value: ",exceptions)
   });
 }
 
