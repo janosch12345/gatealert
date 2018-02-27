@@ -256,7 +256,8 @@ function getPeopleCounterValues(){
   .then(() => {
     broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
   })
-  .catch(() => {
+  .catch((error) => {
+    log("Error occured on scheduled getPeopleCounterValues", error)
     broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
   });
 }
