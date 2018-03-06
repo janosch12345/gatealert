@@ -140,14 +140,10 @@ module.exports = class Gate{
       }    
     });
     
-    this.socket.on('close', () => { 
+    this.socket.on('close', (error) => { 
       this.log(" CLOSED ");
       //reject an existing promise
-      if (this.context.rejecter){
-        this.log(" found reject ");
-        this.context.rejecter({ errorOn : "socket", error: true, errorMessage: "close of socket" });
-        this.initContext();
-      }
+      
     });
     
     this.socket.on('timeout', () => { 
