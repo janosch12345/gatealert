@@ -95,7 +95,9 @@ module.exports = class Gate{
               this.context.rejecter({ errorOn : "resetPCValues", error: true, id: this.id ,errorMessage: "no valid response from gate" });
               this.initContext();
             }
-          
+            break;
+          default: 
+            this.log(" default case should not happen!");
         }
         this.context.responsePart = 0;
         this.context.responseData = "";
@@ -133,11 +135,11 @@ module.exports = class Gate{
     });
     
     this.socket.on('close', () => { 
-      //this.log(" closed")     
+      this.log(" CLOSED ")     
     });
     
     this.socket.on('timeout', () => { 
-      //this.log(" TIMEOUT!!!!!!!!!!")
+      this.log(" TIMEOUT ")
       this.socket.destroy();
     });
     
