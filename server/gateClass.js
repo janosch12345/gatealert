@@ -45,8 +45,7 @@ module.exports = class Gate{
       if (response.length < 1024) {
         switch (this.context.type){
           case "status": // we expect a status response from gate
-            //socket destroy because ...
-            this.socket.destroy();
+            
             if (this.context.responseData === protocol.response.statusOn){ // response says alarm is on
               this.setInfoAlarmStatus(true); // save status 
               this.context.resolver(); // and resolve the promise
@@ -60,6 +59,8 @@ module.exports = class Gate{
               this.context.rejecter({ errorOn : "statusRequest", error: true, errorMessage: "no valid response from gate" });
               this.initContext();
             }
+            //socket destroy because ...
+            this.socket.destroy();
           break;
           case "toggle": // we expect an alarm changed response from gate
             if (this.context.responseData === protocol.response.alarmChangeOk){
@@ -72,21 +73,23 @@ module.exports = class Gate{
               this.log("CPU reset went well, sending status request");
               this.socket.write(protocol.request.status);
             } else { // no expectations were fullfilled, rejecting the promise
-              this.socket.destroy();
+              
               this.context.rejecter({ errorOn : "toggleAlarm", error: true, errorMessage: "no valid response from gate" });
               this.initContext();
+              
+              this.socket.destroy();
             }
             break;
           case "getPCValues" :
-            this.socket.destroy(); // cut connection due to received response
             // store and filter the values            
             this.setInfoPeopleCounterValues(this.context.responseData); // save people counter values 
             this.context.resolver(); // and resolve the promise
             this.initContext(); // reset context
+            this.socket.destroy(); // cut connection due to received response
+            
             break;
           case "resetPCValues" :
             // what about retries
-            this.socket.destroy();
             
             if (this.context.responseData === protocol.response.resetPeopleCounterValuesOK){ // response says reset is done
               this.context.resolver(); // and resolve the promise
@@ -95,6 +98,9 @@ module.exports = class Gate{
               this.context.rejecter({ errorOn : "resetPCValues", error: true, id: this.id ,errorMessage: "no valid response from gate" });
               this.initContext();
             }
+            
+            this.socket.destroy();
+            
             break;
           default: 
             this.log(" default case should not happen!");
