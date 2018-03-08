@@ -57,7 +57,7 @@ class Gate {
           break;  
       }    
       
-    })
+    });
     
     this.socket.on('data', (chunk) => {
       let response = chunk.toString("hex").toUpperCase();
@@ -145,7 +145,7 @@ class Gate {
     });
     
     this.socket.on('timeout', () => { 
-      this.log(" TIMEOUT ")
+      this.log(" TIMEOUT ");
       this.socket.destroy();
     });
     
@@ -189,7 +189,7 @@ class Gate {
      * @returns {undefined}
      */
     setInfoAlarmStatus(val){
-      this.log("setInfoAlarmStatus")
+      
       this.alarm.status = val;
       this.alarm.statusTS = new Date();
     }
@@ -209,7 +209,7 @@ class Gate {
     
       if (this.context.save){
         this.log(" Saving Data to DB: " + JSON.stringify({ "in": this.counter.in, "out" : this.counter.out, "gate_id" : this.id }));
-        db.savePeopleCounterValues({ "in": this.counter.in, "out" : this.counter.out, "gate_id" : this.id })
+        db.savePeopleCounterValues({ "in": this.counter.in, "out" : this.counter.out, "gate_id" : this.id });
       }        
     }
     
@@ -233,7 +233,7 @@ class Gate {
         statusTS : this.alarm.statusTS, 
         avail: this.avail,
         counter : this.counter
-      }
+      };
     }
 
     log(msg, msgObject) {
@@ -259,7 +259,7 @@ class Gate {
           this.getAlarmStatus(false) // false will let the connection open for following request
           .then( () => { 
             // and second get counter values
-            return this.getPeopleCounterValues()
+            return this.getPeopleCounterValues();
           }).then(() =>{
             // resolve the promise
             
@@ -296,11 +296,11 @@ class Gate {
     }
                             
     /**
-      * 
+      * @param {boolean} closeConnection - closes connection after request preset to true
       * @param {type} newStatus
       * @returns {Promise}
       */
-     setAlarmStatus (newStatus,closeConnection = true){
+     setAlarmStatus (newStatus, closeConnection = true){
 
        return new Promise(
        // connect to the gate
@@ -329,7 +329,7 @@ class Gate {
      }
 
      /**
-      * 
+      * @param {boolean} closeConnection - closes connection after request preset to true
       * @returns {Promise}
       */ 
      getAlarmStatus (closeConnection = true){
@@ -362,6 +362,11 @@ class Gate {
        });  
      }
 
+     /**
+      * 
+      * @param {type} closeConnection
+      * @returns {Promise}
+      */
      resetPeopleCounterValues (closeConnection = true){
 
        return new Promise(
@@ -382,7 +387,8 @@ class Gate {
      }
 
      /**
-      * 
+      * @param {boolean} save - if true will save data to defined db
+      * @param {boolean} closeConnection - closes connection after request preset to true   
       * @returns {Promise}
       */
      getPeopleCounterValues (save = false, closeConnection = true){
@@ -404,4 +410,4 @@ class Gate {
        });  
      }
 
-  }
+  };
