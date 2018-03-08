@@ -276,7 +276,7 @@ class Gate {
             return resolve();
           })
           .catch( err => { 
-            return reject();
+            return reject( err );
           });
         }
       });
