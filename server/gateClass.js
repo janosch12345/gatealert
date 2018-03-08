@@ -191,6 +191,7 @@ module.exports = class Gate{
    * @returns {undefined}
    */
   setInfoAlarmStatus(val){
+    this.log("setting alarm")
     this.alarm.status = val;
     this.alarm.statusTS = new Date();
   }

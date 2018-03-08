@@ -19,7 +19,7 @@ var j = false; // scheduler
 var r = false; // reset scheduler
 
 // Gate client class and notification server
-var Gate = require('./gateClass.js');
+var Gate = require('./gate.js');
 var NotificationServer = require('./notificationServer.js');
 
 /**
@@ -215,7 +215,7 @@ for (let i in config.gates){
         initResetScheduler();
       }
     }
-  }).catch( err => {
+  }).catch( (err) => {
     
     gates.push(aGate);
     log("ERROR during init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") failed: " + JSON.stringify(err));
