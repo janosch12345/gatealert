@@ -22,6 +22,11 @@ var r = false; // reset scheduler
 var Gate = require('./gate.js');
 var NotificationServer = require('./notificationServer.js');
 
+var db = require('./db.js');
+if (config.peopleCounterFile){
+  var fs = require('fs');
+}
+
 /**
  * Global variables
  */
@@ -252,9 +257,34 @@ function initReadScheduler(){
 }
 
 function getPeopleCounterValues(){
-  Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues(config.alarmDB.savePeopleCounterValues)}))
+  Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues()}))
   .then(() => {
+    // all gates fetched their counter values
+    if (config.alarmDB.savePeopleCounterValues){
+      // save values for each gate database
+      for (let g of gates){
+        if (g.counter){            
+          log(" Saving Data to DB: " + JSON.stringify({ "in": g.counter.in, "out" : g.counter.out, "gate_id" : g.id }));
+          db.savePeopleCounterValues({ "in": g.counter.in, "out" : g.counter.out, "gate_id" : g.id });
+        }
+      }
+    }
+    // broadcast their state to browser clients
     broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+
+    // save gate counter values to file if defined
+    if (config.peopleCounterFile){
+      let out = { ts : new Date, gates : []};
+      for (let g of gates){
+        out.gates.push({ "in": g.counter.in, "out" : g.counter.out, "gate_id" : g.id });
+      }
+            
+      fs.writeFile(config.peopleCounterFile, JSON.stringify(out,null,2), function (err) {
+        if (err) {
+          return log(err);
+        }
+      });
+    }
   })
   .catch((exceptions) => {
     log("Error occured on scheduled getPeopleCounterValues", exceptions)

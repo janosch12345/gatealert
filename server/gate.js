@@ -28,7 +28,6 @@ class Gate {
       msg: undefined,
       responseData: "",
       responsePart: 0,
-      save: false,
       resolver: undefined,
       rejecter: undefined,
       closeConnection: true
@@ -173,7 +172,6 @@ class Gate {
       this.context.msg = undefined;
       this.context.resolver = undefined;
       this.context.rejecter = undefined;
-      this.context.save = false;
       
       if (this.context.closeConnection){
         this.socket.destroy();
@@ -202,15 +200,11 @@ class Gate {
     setInfoPeopleCounterValues(responseByteString){
       let values;
       while (values = config.peopleCounterValuesRegex.exec(responseByteString)){
-        this.counter.in  = parseInt(values[2], 16);
-        this.counter.out = parseInt(values[3], 16);
+        this.counter.in  = parseInt(values[2], 16) || -1;
+        this.counter.out = parseInt(values[3], 16) || -1;
         this.counter.ts = new Date();
       }  
-    
-      if (this.context.save){
-        this.log(" Saving Data to DB: " + JSON.stringify({ "in": this.counter.in, "out" : this.counter.out, "gate_id" : this.id }));
-        db.savePeopleCounterValues({ "in": this.counter.in, "out" : this.counter.out, "gate_id" : this.id });
-      }        
+         
     }
     
     /**
@@ -387,11 +381,10 @@ class Gate {
      }
 
      /**
-      * @param {boolean} save - if true will save data to defined db
       * @param {boolean} closeConnection - closes connection after request preset to true   
       * @returns {Promise}
       */
-     getPeopleCounterValues (save = false, closeConnection = true){
+     getPeopleCounterValues (closeConnection = true){
        return new Promise(
        (resolve, reject) => {
          // prevent multiple requests on gate
@@ -403,7 +396,6 @@ class Gate {
          this.context.resolver = resolve;
          this.context.rejecter = reject;
          this.context.type = "getPCValues";
-         this.context.save = save;
          this.context.closeConnection = closeConnection;
          this.connect();
 

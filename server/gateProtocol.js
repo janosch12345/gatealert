@@ -1,13 +1,13 @@
 /*
  * these are the messages sent to abd received from the rfid-reader in the gate
- * reader is a feig lrb25000
+ * reader is a feig lrb2500
  */
-var protocol = { request : {}, response : {} };
+const protocol = { request : {}, response : {} };
 
 ////02 00 08 FF 80 89 08 B6 
 //02 00 0D FF 8A 02 01 01 00 09 01 80 12 NEU
 //cfg9
-protocol.request.status = new Buffer(13);
+protocol.request.status = Buffer.alloc(13);
 protocol.request.status[0] = 0x02;
 protocol.request.status[1] = 0x00;
 protocol.request.status[2] = 0x0D;
@@ -28,7 +28,7 @@ protocol.response.statusOn  = '02002A008A00011E00090F0F0000000000000000000000000
 protocol.response.statusOff = '02002A008A00011E00090F00000000000000000000000000000000000000000000000000000000005810';
 
 //CPU-Reset: 02 00 07 FF 63 58 04
-protocol.request.cpureset = new Buffer(7);
+protocol.request.cpureset = Buffer.alloc(7);
 protocol.request.cpureset[0] = 0x02;
 protocol.request.cpureset[1] = 0x00;
 protocol.request.cpureset[2] = 0x07;
@@ -43,7 +43,7 @@ protocol.response.cpuResetOk   = '020008006300C3AA';
 //alarm ON: 02 00 16 FF 81 89 00 00 00 00 00 00 00 03 00 00 00 00 00 00 91 F6
 //NEU 1 loop  ON: 02 00 2C FF 8B 02 01 01 01 1E 00 09 03 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 70 D6 
 //NEU 2 loop  ON: 02 00 2C FF 8B 02 01 01 01 1E 00 09 0F 0F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 3D 57 
-protocol.request.alarmOn = new Buffer(44);
+protocol.request.alarmOn = Buffer.alloc(44);
 protocol.request.alarmOn[0] = 0x02;
 protocol.request.alarmOn[1] = 0x00;
 protocol.request.alarmOn[2] = 0x2C;
@@ -92,7 +92,7 @@ protocol.request.alarmOn[43] = 0x57;
 //alarm OFF: 02 00 16 FF 81 89 00 00 00 00 00 00 00 00 00 00 00 00 00 00 FF 5E
 //NEU 1 loop  OFF: 02 00 2C FF 8B 02 01 01 01 1E 00 09 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 32 D5 
 //NEU 2 loop  OFF: 02 00 2C FF 8B 02 01 01 01 1E 00 09 0F 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 77 59 
-protocol.request.alarmOff = new Buffer(44);
+protocol.request.alarmOff = Buffer.alloc(44);
 protocol.request.alarmOff[0] = 0x02;
 protocol.request.alarmOff[1] = 0x00;
 protocol.request.alarmOff[2] = 0x2C;
@@ -144,7 +144,7 @@ protocol.response.alarmChangeOk   = '020008008B009A8D';
 // Gate counter module new since 0.5
 //Anfrage Peoplecounter Values
 //02 00 12 FF 9F 00 0D 02 02 00 08 01 77 00 EE 02 44 31
-protocol.request.peopleCounterValues = new Buffer(18);
+protocol.request.peopleCounterValues = Buffer.alloc(18);
 protocol.request.peopleCounterValues[0] = 0x02;
 protocol.request.peopleCounterValues[1] = 0x00;
 protocol.request.peopleCounterValues[2] = 0x12;
@@ -166,7 +166,7 @@ protocol.request.peopleCounterValues[17] = 0x31;
 
 // setzen des peoplecounter value auf 0
 // 02 00 22 FF 9F 00 0D 02 02 00 18 01 78 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 B0 9D 41 38
-protocol.request.resetPeopleCounterValues = new Buffer(34);
+protocol.request.resetPeopleCounterValues = Buffer.alloc(34);
 protocol.request.resetPeopleCounterValues[0] = 0x02;
 protocol.request.resetPeopleCounterValues[1] = 0x00;
 protocol.request.resetPeopleCounterValues[2] = 0x22;
