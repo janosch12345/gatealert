@@ -8,6 +8,7 @@ var config = {
   peopleCounterValuesRegex : /(020020009F000200180177000000000000000000)([0-9a-fA-F]{8})([0-9a-fA-F]{8})([0-9a-fA-F]{8})/g,
   minStatusRequestDelta : 30000,
   peopleCounterReadInterval : '0,15,30,45 * * * *', // || false , 
+  peopleCounterFile : false, // "./../peopleCounter.json"
   peopleCounterResetInterval : '59 23 * * *', // || false , 
   alarmDB : {
     saveAlarms : true,
