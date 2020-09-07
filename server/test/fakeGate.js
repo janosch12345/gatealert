@@ -1,8 +1,6 @@
 'use strict';
 
 var net = require('net');
-const port = "10001";
-const ip = "127.0.0.1";
 const protocol = require('../gateProtocol.js');
 
 let fakeGates = [
