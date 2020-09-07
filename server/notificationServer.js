@@ -101,6 +101,8 @@ function getCharFromHexString(bs) {
  * @returns {undefined}
  */
 function handleNotification(notification, origin) {
+
+  origin = "localhost";
   
   // catching keepalive message 02000a006e0000004b69
   if (notification === "02000a006e0000004b69"){
@@ -109,7 +111,8 @@ function handleNotification(notification, origin) {
   }
 
   // retrieve informtion for origin of alarm
-  origin = config.gates.find( gate => { return origin === gate.host }) || origin;
+  origin = config.gates.find( gate => origin === gate.host ).id || origin;
+  
 
   // notific: 0200400022001300010035030008e00401500a203fa300090432010421323131303336343300000000f70000004445444932352d45000000360000000004fe47
   // matches: E00401500A203FA3000904320104213231313033363433,E00401500A203FA3,000904,320104213231313033   32,010421,32,31,31,30,33,36,34,33
@@ -136,9 +139,12 @@ function handleNotification(notification, origin) {
     for (let index of config.notificationMedianumberIndex){ 
       mn += getCharFromHexString(mem[index])
     }    
-      
-    log("ALARM ("+origin+")---> " + uid + " " + mn + ' <---');
     
+    // Spielerei
+    log("╔════════════ ALARM ( " + origin + " ) ════════════╗");
+    log("║     " + uid + "      " + mn + Array(origin.length).fill(" ").join("") + '║ ');
+    log("╚" + Array(origin.length).fill("═").join("") + "════════════════════════════════════╝");
+
     if (medianumberRegex.test(mn)){
 
       lms.getMetadata(mn, uid).then(meta =>{
