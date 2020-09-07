@@ -9,26 +9,33 @@ var Main = require('./main.js');
 var config = require('./config');
 
 var allowedClients = config.gates.map(function(g){return g.host});
-
-//var dbConnection = mysql.createConnection(config.alarmDB);
-
-
+allowedClients.push("127.0.0.1")
 // preconfigured dummy items which are also tagged with rfid
 // they are triggered by specialRegex1 and specialRegex2 from config.js
 // or if no medianumber is found broadcasted as unknown object
-var korb = {
+const korb = {
   msgType: "alarm",
   medianumber: "123",
   signature: "Korb",
   title: "Korb",
   available: "true"
 }
-var unknown = {
+const unknown = {
   msgType: "alarm",
   medianumber: "Unbekannt",
   signature: "Unbekannt",
   title: "Unbekannt",
   available: "true"
+}
+
+const alarm = {
+  "type": "alarm",
+  "data": {
+    "title": undefined,
+    "available": undefined,
+    "medianumber": undefined,
+    "signature": undefined
+  }
 }
 
 var testNotification = "0200400022001300010035030008e00401500a203fa300090432010421323131303336343300000000f70000004445444932352d45000000360000000004fe47";
@@ -56,7 +63,7 @@ function initNotificationServer() {
       // Add a 'data' event handler to this instance of socket
       sock.on('data', function (data) {
         log('NOTIFICATION <= ' + sock.remoteAddress + ': ' + data + '  (' + data.length + ')');
-        handleNotification(data);
+        handleNotification(data, sock.remoteAddress);
         //getMedianumbers(data);
       });
 
@@ -93,48 +100,53 @@ function getCharFromHexString(bs) {
  * @param {type} notification
  * @returns {undefined}
  */
-function handleNotification(notification) {
+function handleNotification(notification, origin) {
   
   // catching keepalive message 02000a006e0000004b69
   if (notification === "02000a006e0000004b69"){
     log("KEEPALIVE received");
     return false;
   }
-  
+
+  // retrieve informtion for origin of alarm
+  origin = config.gates.find( gate => { return origin === gate.host }) || origin;
+
+  // notific: 0200400022001300010035030008e00401500a203fa300090432010421323131303336343300000000f70000004445444932352d45000000360000000004fe47
+  // matches: E00401500A203FA3000904320104213231313033363433,E00401500A203FA3,000904,320104213231313033   32,010421,32,31,31,30,33,36,34,33
+  // regex:   (E004[0-9A-F]{12})(\d{6})(3\d|44|5A)([0-9]{6})(3\d)(3\d)(3\d)(3\d)(3\d|58)(3\d)(3\d)(3\d)
   notification = notification.toUpperCase();
+
+  //let reg = /(E004[0-9A-F]{12})(\d{6})([0-9A-Z]{32})/g;
   
   var count = 0;
   var matches;
   while (matches = notificationRegex.exec(notification)) {
+    
     count++;
-    var mn = "", uid = "";
-    mn += getCharFromHexString(matches[3]);
-    mn += getCharFromHexString(matches[8]);
-    mn += getCharFromHexString(matches[7]);
-    mn += getCharFromHexString(matches[6]);
-    mn += getCharFromHexString(matches[5]);
-    mn += getCharFromHexString(matches[12]);
-    mn += getCharFromHexString(matches[11]);
-    mn += getCharFromHexString(matches[10]);
-    mn += getCharFromHexString(matches[9]);
-    uid += matches[1];
+    let uid = matches[1];
+
+    let mn = "";
+    // user memory 16 bytes but each byte encoded in hex 
+    // 32010421323131303336343300000000
+    let mem = matches[3];
+    // split into pairs like 32 01 04 21 32 ...
+    mem = mem.match(/(..?)/g);
+    // grep medianumber from mem 32 ...
+    // and convert it
+    for (let index of config.notificationMedianumberIndex){ 
+      mn += getCharFromHexString(mem[index])
+    }    
       
-    log("ALARM ---> " + uid + " " + mn + ' <---');
+    log("ALARM ("+origin+")---> " + uid + " " + mn + ' <---');
     
     if (medianumberRegex.test(mn)){
-      lms.getMetadata(mn, uid, function (err, meta) {
-        if (err)
-          return console.error(err);
 
-        let alarm = {
-          "type": "alarm",
-          "data": {
-            "title": meta.title,
-            "available": meta.available,
-            "medianumber": meta.medianumber,
-            "signature": meta.signature
-          }
-        }
+      lms.getMetadata(mn, uid).then(meta =>{
+        alarm.data.title = meta.title,
+        alarm.data.available = meta.available,
+        alarm.data.medianumber = meta.medianumber,
+        alarm.data.signature = meta.signature
+        
         
         // tell listening brwoser clients
         Main.broadcast(JSON.stringify(alarm));
@@ -143,7 +155,12 @@ function handleNotification(notification) {
         } catch (exc){
           log("error on saving to AlarmDB", exc)
         }
+      }).catch(err => {
+        log('Error while fetching metadata, broadcasting unknown alarm');        
+        unknown.date = new Date();
+        Main.broadcast(JSON.stringify(unknown));
       });
+      
     }
     
   }

@@ -7,7 +7,7 @@ const protocol = { request : {}, response : {} };
 ////02 00 08 FF 80 89 08 B6 
 //02 00 0D FF 8A 02 01 01 00 09 01 80 12 NEU
 //cfg9
-protocol.request.status = Buffer.alloc(13);
+/*protocol.request.status = Buffer.alloc(13);
 protocol.request.status[0] = 0x02;
 protocol.request.status[1] = 0x00;
 protocol.request.status[2] = 0x0D;
@@ -20,7 +20,8 @@ protocol.request.status[8] = 0x00;
 protocol.request.status[9] = 0x09;
 protocol.request.status[10] = 0x01;
 protocol.request.status[11] = 0x80;
-protocol.request.status[12] = 0x12;
+protocol.request.status[12] = 0x12;*/
+protocol.request.status = Buffer.from("02000DFF8A0201010009018012",'hex');
 
 //protocol.request.status = new Buffer(0x02, 0x00, 0x0D, 0xFF, 0x8A, 0x02, 0x01, 0x01, 0x00, 0x09, 0x01, 0x80, 0x12);
 //answer:

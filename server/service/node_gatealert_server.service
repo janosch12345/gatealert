@@ -1,0 +1,20 @@
+[Unit]
+Description=node gatealert server deamon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /path/to/server/main.js
+ExecStop=/bin/kill -9 $MAINPID
+Restart=always
+RestartSec=10
+# Restart service after 10 seconds if node service crashes
+StandardOutput=file:/path/to/server/logs/server.log
+StandardError=file:/path/to/server/logs/server-err.log
+User=user
+Group=user
+# Environment if needed: LMSDBHOST=111.222.111.222 LMSDBPORT=1234 LMSDBNAME=name LMSDBUSER=user LMSDBPASS=pass ALARMDBHOST=111.222.111.222 ALARMDBNAME=name ALARMDBUSER=user ALARMDBPASS=pass
+Environment=NODE_ENV=production ALARMDBHOST=111.222.111.222 ALARMDBNAME=name ALARMDBUSER=user ALARMDBPASS=pass
+
+[Install]
+WantedBy=multi-user.target

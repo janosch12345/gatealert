@@ -247,15 +247,25 @@ NotificationServer.init();
 /*
  * Helpers
  */
+
+/**
+ * returns an array of gate information objects
+ */
 function getGateStates(){
   return gates.map( function(gate){return gate.getInfo() });
 }
 
+/**
+ * initialise scheduler to read people counter values
+ */
 function initReadScheduler(){
   j = schedule.scheduleJob(config.peopleCounterReadInterval, getPeopleCounterValues);
   log("PeopleCounter READ scheduler started: " + config.peopleCounterReadInterval);
 }
 
+/**
+ * function that gets called by scheduler that reads people counter values
+ */
 function getPeopleCounterValues(){
   Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues()}))
   .then(() => {
@@ -292,11 +302,17 @@ function getPeopleCounterValues(){
   });
 }
 
+/**
+ * initialise scheduler to reset people counter values
+ */
 function initResetScheduler(){
   r = schedule.scheduleJob(config.peopleCounterResetInterval, resetPeopleCounterValues);
   log("PeopleCounter RESET scheduler started: " + config.peopleCounterResetInterval);
 }
 
+/**
+ * function that gets called by scheduler that resets people counter values
+ */
 function resetPeopleCounterValues(){
   Promise.all(gates.map(function(gate){if (gate.counter) return gate.resetPeopleCounterValues()}))
   .then(() => {

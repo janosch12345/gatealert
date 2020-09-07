@@ -4,6 +4,7 @@
   "author": "jan",
   "contributors": [],
   "dependencies": {
+    "axios": "^0.20.0",
     "mysql": "^2.15.0",
     "node-schedule": "^1.2.5",
     "sybase": "^1.2.1",
