@@ -49,7 +49,7 @@ function onMessage(request) {
       
       for (let i = request.alarms.length -1; i >= 0; i--){
         let alarm = request.alarms[i];
-        let content = browser.i18n.getMessage("menuAlarmContent",[formattedDate(alarm.date),alarm.title,alarm.medianumber,alarm.signature,browser.i18n.getMessage(alarm.available === "true" || alarm.available === true ? 'available' : 'borrowed')])
+        let content = browser.i18n.getMessage("menuAlarmContent",[formattedDate(alarm.date),alarm.origin,alarm.title,alarm.medianumber,alarm.signature,browser.i18n.getMessage(alarm.available === "true" || alarm.available === true ? 'available' : 'borrowed')])
         alarmList.insertAdjacentHTML('beforeend', content);
       }
     }

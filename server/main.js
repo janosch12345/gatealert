@@ -195,8 +195,6 @@ wsServer.on('request', function (request) {
   connection.on('close', function (connection) {
     log("WS Peer "
             + connection.remoteAddress + " disconnected.");
-    // remove user from the list of connected clients
-    // clients.splice(index, 1);
     
   });
 });
@@ -205,8 +203,15 @@ wsServer.on('request', function (request) {
 /**
  * init all gates configured in config 
  */
+log("Configured gates:")
+for (let g of config.gates)
+  log(" - " + g.id + " ("+g.host+":"+g.port + ")")
+
 for (let i in config.gates){
   let aGate = new Gate(config.gates[i].host,config.gates[i].port, config.gates[i].id, config.gates[i].counter);
+
+  
+
   // call for status of the gate
   
   aGate.init().then(() => {

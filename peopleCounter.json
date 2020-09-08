@@ -1,20 +1,15 @@
 {
-  "ts": "2020-09-03T12:45:00.023Z",
+  "ts": "2020-09-07T12:57:00.012Z",
   "gates": [
     {
-      "in": 176,
-      "out": 173,
-      "gate_id": "Fake1"
+      "in": 100,
+      "out": 92,
+      "gate_id": "Eingang A"
     },
     {
-      "in": 80,
-      "out": 70,
-      "gate_id": "Fake2"
-    },
-    {
-      "in": 67,
-      "out": 52,
-      "gate_id": "Fake3"
+      "in": 40,
+      "out": 24,
+      "gate_id": "Eingang B"
     }
   ]
 }

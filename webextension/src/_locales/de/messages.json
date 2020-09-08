@@ -15,7 +15,7 @@
   },
 
   "notificationContent": {
-    "message": "$TITLE$  \nMediennummer: $MEDIANUMBER$\nSignatur: $SIGNATURE$\n Status: $AVAILABLE$",
+    "message": "$TITLE$  \nMediennummer: $MEDIANUMBER$\nSignatur: $SIGNATURE$\n Status: $AVAILABLE$\n Gate: $GATE$",
     "description": "Tells the user which item triggered an alarm.",
     "placeholders": {
       "title" : {
@@ -33,32 +33,40 @@
       "available" : {
         "content" : "$4" ,
         "example" : "Available"
+      },
+      "gate" : {
+        "content" : "$5" ,
+        "example" : "Lbrary Entrance"
       }
     }
   },
   
   "menuAlarmContent": {
-    "message": "<div class='alarm'><span class='date'>$DATE$</span><br>$TITLE$<br>Mediennummer: $MEDIANUMBER$<br>Signatur: $SIGNATURE$<br>Status: $AVAILABLE$",
+    "message": "<div class='alarm'><span class='date'>$DATE$</span> | <span class='gateId'>$GATE$</span><br>$TITLE$<br>Mediennummer: $MEDIANUMBER$<br>Signatur: $SIGNATURE$<br>Status: $AVAILABLE$",
     "description": "Tells the user which item triggered an alarm.",
     "placeholders": {
       "date" : {
         "content" : "$1",
         "example" : "1984"
       },
-      "title" : {
+      "gate" : {
         "content" : "$2",
+        "example" : "Library Entrance"
+      },
+      "title" : {
+        "content" : "$3",
         "example" : "Booktitle 1984"
       },
       "medianumber" : {
-        "content" : "$3",
+        "content" : "$4",
         "example" : "912345678"
       },
       "signature" : {
-        "content" : "$4",
+        "content" : "$5",
         "example" : "0ABC123"
       },
       "available" : {
-        "content" : "$5" ,
+        "content" : "$6" ,
         "example" : ""
       }
     }

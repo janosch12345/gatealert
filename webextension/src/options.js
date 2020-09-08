@@ -9,7 +9,7 @@ function saveOptions(e) {
   let options = { 
     gateAlertOptions : {
       address: document.querySelector("#server-address").value,
-      port: document.querySelector("#server-port").value,
+      //port: document.querySelector("#server-port").value,
       notifications: document.querySelector("#notifications-enabled").checked,
       listUrl: document.querySelector("#alarm-list-url").value,
       debug: document.querySelector("#debug-enabled").checked
@@ -37,13 +37,13 @@ function restoreOptions() {
   gettingItem.then((res) => {
     if (res.gateAlertOptions){
       document.querySelector("#server-address").value = res.gateAlertOptions.address;
-      document.querySelector("#server-port").value = res.gateAlertOptions.port;
+      //document.querySelector("#server-port").value = res.gateAlertOptions.port;
       document.querySelector("#notifications-enabled").checked = res.gateAlertOptions.notifications;
       document.querySelector("#alarm-list-url").value = res.gateAlertOptions.listUrl;
       document.querySelector("#debug-enabled").checked = res.gateAlertOptions.debug;
     } else {
       document.querySelector("#server-address").value = '127.0.0.1';
-      document.querySelector("#server-port").value = '1337';
+      //document.querySelector("#server-port").value = '1337';
       document.querySelector("#notifications-enabled").checked = true;
       document.querySelector("#alarm-list-url").value = 'http://';
       document.querySelector("#debug-enabled").checked = false;

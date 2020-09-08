@@ -107,7 +107,8 @@ function wsConnect() {
   if (_websocket) {
     _websocket.close(3001);
   } else {
-    _websocket = new WebSocket("ws://" +options.address + ":" + options.port);
+    //_websocket = new WebSocket("ws://" +options.address + ":" + options.port);
+    _websocket = new WebSocket(options.address);
     
     _websocket.onopen = function() {
       log('Websocket connection opened');
@@ -222,7 +223,7 @@ function onAlarm(alarm){
   //display native system notification if enabled in options
   if (options.notifications){
     var title = browser.i18n.getMessage("notificationTitle");
-    var content = browser.i18n.getMessage("notificationContent", [ alarm.title, alarm.medianumber, alarm.signature, browser.i18n.getMessage(alarm.available === "true" || alarm.available === true ? 'available' : 'borrowed') ]);
+    var content = browser.i18n.getMessage("notificationContent", [ alarm.title, alarm.medianumber, alarm.signature, browser.i18n.getMessage(alarm.available === "true" || alarm.available === true ? 'available' : 'borrowed'), alarm.origin ]);
     browser.notifications.create({
       "type": "basic",
       "iconUrl": browser.extension.getURL("icons/bell-o.svg"),

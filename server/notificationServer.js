@@ -31,6 +31,7 @@ const unknown = {
 const alarm = {
   "type": "alarm",
   "data": {
+    "origin": undefined, 
     "title": undefined,
     "available": undefined,
     "medianumber": undefined,
@@ -148,6 +149,7 @@ function handleNotification(notification, origin) {
     if (medianumberRegex.test(mn)){
 
       lms.getMetadata(mn, uid).then(meta =>{
+        alarm.data.origin = origin,
         alarm.data.title = meta.title,
         alarm.data.available = meta.available,
         alarm.data.medianumber = meta.medianumber,
