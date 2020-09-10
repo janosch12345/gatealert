@@ -274,9 +274,12 @@ function initReadScheduler(){
 function getPeopleCounterValues(){
   Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues()}))
   .then(() => {
-    // all gates fetched their counter values
-    if (config.alarmDB.savePeopleCounterValues){
-      // save values for each gate database
+
+    // broadcast their state to browser clients
+    broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+
+    // if values are to be saved in db
+    if (config.alarmDB.savePeopleCounterValues && new Date().getMinutes() % config.alarmDB.savePeopleCounterValues === 0){
       for (let g of gates){
         if (g.counter){            
           log(" Saving Data to DB: " + JSON.stringify({ "in": g.counter.in, "out" : g.counter.out, "gate_id" : g.id }));
@@ -284,19 +287,17 @@ function getPeopleCounterValues(){
         }
       }
     }
-    // broadcast their state to browser clients
-    broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+    
 
     // save gate counter values to file if defined
     if (config.peopleCounterFile){
-      let out = { ts : new Date, gates : []};
-      for (let g of gates){
-        out.gates.push({ "in": g.counter.in, "out" : g.counter.out, "gate_id" : g.id });
-      }
-            
+      let out = { 
+        ts : new Date, 
+        gates : gates.map( g => { return { "in": g.counter.in, "out" : g.counter.out, "gate_id" : g.id } })
+      };
       fs.writeFile(config.peopleCounterFile, JSON.stringify(out,null,2), function (err) {
         if (err) {
-          return log(err);
+          log(err);
         }
       });
     }
