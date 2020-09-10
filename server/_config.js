@@ -16,6 +16,7 @@ var config = {
     saveAlarms : true,
     savePeopleCounterValues : true,
     host     : process.env.ALARMDBHOST,
+    //port: : 3306, // '/var/run/mysqld/mysqld.sock'
     user     : process.env.ALARMDBUSER,
     password : process.env.ALARMDBPASS,
     database : process.env.ALARMDBNAME
