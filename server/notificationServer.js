@@ -9,7 +9,8 @@ var Main = require('./main.js');
 var config = require('./config');
 
 var allowedClients = config.gates.map(function(g){return g.host});
-allowedClients.push("127.0.0.1")
+allowedClients.push("127.0.0.1");
+allowedClients.push(config.notificationServer.host);
 // preconfigured dummy items which are also tagged with rfid
 // they are triggered by specialRegex1 and specialRegex2 from config.js
 // or if no medianumber is found broadcasted as unknown object
@@ -101,7 +102,7 @@ function getCharFromHexString(bs) {
  * @param {type} notification
  * @returns {undefined}
  */
-function handleNotification(notification, origin) {
+function handleNotification(notification, origin = "127.0.0.1") {
 
   origin = "localhost";
   
@@ -112,7 +113,9 @@ function handleNotification(notification, origin) {
   }
 
   // retrieve informtion for origin of alarm
-  origin = config.gates.find( gate => origin === gate.host ).id || origin;
+  let tmp = config.gates.find( gate => origin === gate.host );
+  if (tmp.id)
+    origin = temp.id;
   
 
   // notific: 0200400022001300010035030008e00401500a203fa300090432010421323131303336343300000000f70000004445444932352d45000000360000000004fe47
