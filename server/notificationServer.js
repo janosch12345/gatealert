@@ -114,8 +114,8 @@ function handleNotification(notification, origin = "127.0.0.1") {
 
   // retrieve informtion for origin of alarm
   let tmp = config.gates.find( gate => origin === gate.host );
-  if (tmp.id)
-    origin = temp.id;
+  if (tmp && tmp.hasOwnProperty('id'))
+    origin = tmp.id;
   
 
   // notific: 0200400022001300010035030008e00401500a203fa300090432010421323131303336343300000000f70000004445444932352d45000000360000000004fe47
