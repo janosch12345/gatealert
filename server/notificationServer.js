@@ -104,8 +104,6 @@ function getCharFromHexString(bs) {
  */
 function handleNotification(notification, origin = "127.0.0.1") {
 
-  origin = "localhost";
-  
   // catching keepalive message 02000a006e0000004b69
   if (notification === "02000a006e0000004b69"){
     log("KEEPALIVE received");
