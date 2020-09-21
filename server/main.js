@@ -230,12 +230,13 @@ for (let i in config.gates){
     gates.push(aGate);
     log("ERROR during init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") failed: " + JSON.stringify(err));
     if (gates.length === config.gates.length){
-      if (!j && config.peopleCounterReadInterval != false){
-        initReadScheduler();
-      }
       if (!r && config.peopleCounterResetInterval != false){
         initResetScheduler();
       }
+      if (!j && config.peopleCounterReadInterval != false){
+        initReadScheduler();
+      }
+      
     }
   });
   
