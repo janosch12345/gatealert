@@ -218,11 +218,11 @@ for (let i in config.gates){
     gates.push(aGate);
     log("init of Gate(" + config.gates[i].host +":"+config.gates[i].port + ") done: " + JSON.stringify(aGate.getInfo()));
     if (gates.length === config.gates.length){
-      if (!j && config.peopleCounterReadInterval != false){
-        initReadScheduler();
-      }
       if (!r && config.peopleCounterResetInterval != false){
         initResetScheduler();
+      }
+      if (!j && config.peopleCounterReadInterval != false){
+        initReadScheduler();
       }
     }
   }).catch( (err) => {
@@ -273,11 +273,14 @@ function initReadScheduler(){
  * function that gets called by scheduler that reads people counter values
  */
 function getPeopleCounterValues(){
+  
   Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues()}))
-  .then(() => {
+  .then((values) => {
+
+    console.log(values)
 
     // broadcast their state to browser clients
-    broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+    //broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
 
     // if values are to be saved in db
     if (config.alarmDB.savePeopleCounterValues && new Date().getMinutes() % config.alarmDB.savePeopleCounterValues === 0){
@@ -293,8 +296,7 @@ function getPeopleCounterValues(){
     // save gate counter values to file if defined
     if (config.peopleCounterFile){
       let out = { 
-        ts : new Date, 
-        gates : gates.map( g => { return { "in": g.counter.in, "out" : g.counter.out, "gate_id" : g.id } })
+        gates : gates.map( g => { return { "gate_id" : g.id, "counter" : g.counter } })
       };
       fs.writeFile(config.peopleCounterFile, JSON.stringify(out,null,2), function (err) {
         if (err) {
@@ -305,8 +307,13 @@ function getPeopleCounterValues(){
   })
   .catch((exceptions) => {
     log("Error occured on scheduled getPeopleCounterValues", exceptions)
-    broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
-  });
+    
+  }).finally(
+    () =>{
+      console.log("finally")
+      broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
+    }
+  );
 }
 
 /**
@@ -321,6 +328,7 @@ function initResetScheduler(){
  * function that gets called by scheduler that resets people counter values
  */
 function resetPeopleCounterValues(){
+  
   Promise.all(gates.map(function(gate){if (gate.counter) return gate.resetPeopleCounterValues()}))
   .then(() => {
     log("People Counter reset done.")
