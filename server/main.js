@@ -277,8 +277,7 @@ function getPeopleCounterValues(){
   Promise.all(gates.map(function(gate){if (gate.counter) return gate.getPeopleCounterValues()}))
   .then((values) => {
 
-    console.log(values)
-
+    
     // broadcast their state to browser clients
     //broadcast(JSON.stringify({"type":"status", "gates" : getGateStates() }));
 
