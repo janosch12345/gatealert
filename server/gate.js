@@ -207,7 +207,7 @@ module.exports =
         if (isNaN(inVal)) { inVal = -1; }
         this.counter.in = inVal;
         let outVal = parseInt(values[3], 16);
-        if (isNaN(outVal)) { inVal = -1; }
+        if (isNaN(outVal)) { outVal = -1; }
         this.counter.out = outVal;
         this.counter.ts = new Date();
       }
