@@ -200,10 +200,15 @@ module.exports =
      */
     setInfoPeopleCounterValues(responseByteString) {
       let values;
+      
       let regexp = config.peopleCounterValuesRegex;
       while ((values = regexp.exec(responseByteString)) !== null) {
-        this.counter.in = parseInt(values[2], 16) || -1;
-        this.counter.out = parseInt(values[3], 16) || -1;
+        let inVal = parseInt(values[2], 16);
+        if (isNaN(inVal)) { inVal = -1; }
+        this.counter.in = inVal;
+        let outVal = parseInt(values[3], 16);
+        if (isNaN(outVal)) { inVal = -1; }
+        this.counter.out = outVal;
         this.counter.ts = new Date();
       }
 
