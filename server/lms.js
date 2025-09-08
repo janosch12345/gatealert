@@ -4,10 +4,30 @@ var config = require('./config.js');
 var medianumberRegex = config.medianumberRegex;
 const debug = true;
 
-
+// request params
+var request = {
+  headers: {
+    'content-type': 'application/json',
+  },
+  method: "GET"
+}
 
 if (config.useXHRForMetadata) {
-  var http = require('http');
+  const proxyServer = process.env.https_proxy || null;
+  /**
+ * check on environment proxy
+ */
+  if (proxyServer) {
+
+    let tmp = /(https?):\/\/(.*):([\d]*)/.exec(proxyServer);
+    request.proxy = {
+      protocol: tmp[1],
+      host: tmp[2],
+      port: tmp[3]
+    }
+    log(" using proxy ")
+  }
+  //var http = require('http');
   var axios = require('axios');
   var getMetadata = getMetadataByXHR;
 } else {
@@ -25,32 +45,36 @@ if (config.useXHRForMetadata) {
  */
 async function getMetadataByXHR(medianumber, uid, callback) {
 
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     // fist we check if the medianumber 
     if (!medianumberRegex.test(medianumber))
       return reject({ error: true, errorOn: "getMetadatabyDB", errorMessage: "medianumber is not passing the regex", args: { medianumber: medianumber, uid: uid } });
 
+    request.url = config.XHREndpoint + medianumber;
+    request.method = "GET";
+
     log("LMS requesting metadata for " + medianumber + " by HTTP request to ")
-    log("-> " + config.XHREndpoint + medianumber);
-    axios.get(config.XHREndpoint + medianumber).then(function (response) {
+    log("-> " + request.url);
+
+    try {
+      let response = await axios(request);
       let meta = {
         medianumber: medianumber,
         uid: uid,
         signature: response.data.signature,
         title: response.data.title,
         //mtyp : mtyp,
-        available: response.data.available === 'true' ? true : false
+        available: !response.data.onloan ? true : false
 
       }
       return resolve(meta)
-    })
-      .catch(function (error) {
-        log("<- " + error.response.status);
+    } catch (error) {
+      if (error.code)
+          log("<- " + error.code);
+        if (error.response?.status)
+          log("<- " + error.response.status);
         reject(error);
-      })
-      .then(function () {
-        // always executed
-      });
+    }
   });
 
 
